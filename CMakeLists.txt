@@ -7,5 +7,7 @@ find_package(OpenGl REQUIRED)
 include_directories(/usr/local/include)
 link_directories(/usr/local/lib)
 
+find_library(SDL2_FRAMEWORK SDL2)
 add_executable(Physics main.cpp)
 target_link_libraries(Physics libGLEW.a ${OPENGL_LIBRARIES})
+target_link_libraries(Physics ${SDL2_FRAMEWORK})
