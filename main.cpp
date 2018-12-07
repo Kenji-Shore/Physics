@@ -1,6 +1,11 @@
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
+
+#include "shader.h"
 
 int main() {
     bool quit = false;
@@ -11,6 +16,7 @@ int main() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cout << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
@@ -29,7 +35,26 @@ int main() {
         return -1;
     }
 
+    glewExperimental = GL_TRUE;
     glewInit();
+
+    GLuint VertexArrayID;
+    glGenVertexArrays(1, &VertexArrayID);
+    glBindVertexArray(VertexArrayID);
+
+    static const GLfloat g_vertex_buffer_data[] {
+            -1.0f, -1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f
+    };
+
+    GLuint vertexbuffer;
+    glGenBuffers(1, &vertexbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+
+    GLuint programID = LoadShaders("Vertex.vert", "Fragment.frag");
+
     while (!quit) {
         while (SDL_PollEvent(&sdlEvent) != 0) {
             if (sdlEvent.type == SDL_QUIT) {
@@ -39,6 +64,14 @@ int main() {
 
         glClearColor(1, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        glDisableVertexAttribArray(0);
+
+        glUseProgram(programID);
+
         SDL_GL_SwapWindow(window);
     }
 
