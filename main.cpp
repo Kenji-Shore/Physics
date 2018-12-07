@@ -13,7 +13,7 @@ int main() {
     SDL_GLContext glContext;
     SDL_Event sdlEvent;
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -38,6 +38,8 @@ int main() {
     glewExperimental = GL_TRUE;
     glewInit();
 
+    printf("Supported GLSL version is %s.\n", (char *)glGetString(GL_SHADING_LANGUAGE_VERSION));
+
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
@@ -53,7 +55,7 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-    GLuint programID = LoadShaders("Vertex.vert", "Fragment.frag");
+    GLuint programID = LoadShaders("/Users/kenji/CLionProjects/Physics/Vertex.vert", "/Users/kenji/CLionProjects/Physics/Fragment.frag");
 
     while (!quit) {
         while (SDL_PollEvent(&sdlEvent) != 0) {
@@ -62,16 +64,16 @@ int main() {
             }
         }
 
-        glClearColor(1, 0, 0, 1);
+        glClearColor(0, 0, 0.4f, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glUseProgram(programID);
 
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+        glDrawArrays(GL_TRIANGLES, 0, 3);
         glDisableVertexAttribArray(0);
-
-        glUseProgram(programID);
-
         SDL_GL_SwapWindow(window);
     }
 
