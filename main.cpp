@@ -7,16 +7,12 @@
 
 #include "shader.h"
 
+using namespace std;
 int main() {
     bool quit = false;
     SDL_Window* window;
     SDL_GLContext glContext;
     SDL_Event sdlEvent;
-
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cout << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
@@ -29,6 +25,11 @@ int main() {
         return -1;
     }
 
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
     glContext = SDL_GL_CreateContext(window);
     if (glContext == NULL) {
         std::cout << "OpenGL context could not be created! SDL_Error: " << SDL_GetError() << std::endl;
@@ -37,8 +38,6 @@ int main() {
 
     glewExperimental = GL_TRUE;
     glewInit();
-
-    printf("Supported GLSL version is %s.\n", (char *)glGetString(GL_SHADING_LANGUAGE_VERSION));
 
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
@@ -55,7 +54,7 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-    GLuint programID = LoadShaders("/Users/kenji/CLionProjects/Physics/Vertex.vert", "/Users/kenji/CLionProjects/Physics/Fragment.frag");
+    GLuint programID = LoadShaders("../Vertex.vert", "../Fragment.frag");
 
     while (!quit) {
         while (SDL_PollEvent(&sdlEvent) != 0) {
