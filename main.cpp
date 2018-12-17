@@ -4,7 +4,7 @@
 
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
-
+#include <glm/glm.hpp>
 #include "shader.h"
 
 using namespace std;
