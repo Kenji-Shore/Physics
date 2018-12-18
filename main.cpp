@@ -4,10 +4,12 @@
 
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "shader.h"
+#include <glm/glm.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 using namespace std;
 int main() {
@@ -16,6 +18,7 @@ int main() {
     SDL_GLContext glContext;
     SDL_Event sdlEvent;
 
+    float i = 0;
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cout << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
         return -1;
@@ -79,7 +82,11 @@ int main() {
         //Camera matrix
         glm::mat4 View = glm::lookAt(glm::vec3(4, 3, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-        glm::mat4 Model = glm::mat4(1.0f);
+        glm::mat4 scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
+        glm::mat4 rotate = glm::rotate(i, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 translate = glm::translate(glm::vec3(0.0f, 0.0f, 0.0f));
+
+        glm::mat4 Model = translate * rotate * scale;
 
         glm::mat4 mvp = Projection * View * Model;
 
@@ -89,6 +96,7 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glDisableVertexAttribArray(0);
         SDL_GL_SwapWindow(window);
+        i = i + 0.1f;
     }
 
     SDL_DestroyWindow(window);
