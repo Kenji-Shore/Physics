@@ -4,6 +4,7 @@
 
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
+#include <math.h>
 #include "shader.h"
 #include <glm/glm.hpp>
 
@@ -152,10 +153,15 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(programID);
 
+        GLfloat colors[] = {
+            (rand()%100) / 100.0f,
+            (rand()%100) / 100.0f,
+            (rand()%100) / 100.0f,
+        };
         for (int i = 0; i < 12*3; i++) {
-            g_color_buffer_data[3*i] = (rand()%100) / 100.0f;
-            g_color_buffer_data[3*i + 1] = (rand()%100) / 100.0f;
-            g_color_buffer_data[3*i + 2] = (rand()%100) / 100.0f;
+            g_color_buffer_data[3*i] = colors[0];
+            g_color_buffer_data[3*i + 1] = colors[1];
+            g_color_buffer_data[3*i + 2] = colors[2];
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
@@ -175,7 +181,7 @@ int main() {
         //Camera matrix
         glm::mat4 View = glm::lookAt(glm::vec3(4, 3, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-        glm::mat4 scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
+        glm::mat4 scale = glm::scale(glm::vec3(sin(i), sin(i), sin(i)));
         glm::mat4 rotate = glm::rotate(i, glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 translate = glm::translate(glm::vec3(0.0f, 0.0f, 0.0f));
 
