@@ -6,5 +6,5 @@ in vec2 UV;
 uniform sampler2D textureSampler;
 
 void main() {
-    color = fragmentColor; //texture(textureSampler, UV).rgb;
+    color = fragmentColor + texture(textureSampler, UV).rgb;
 }
