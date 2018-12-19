@@ -2,7 +2,9 @@
 
 out vec3 color;
 in vec3 fragmentColor;
+in vec2 UV;
+uniform sampler2D textureSampler;
 
 void main() {
-    color = fragmentColor;
+    color = fragmentColor; //texture(textureSampler, UV).rgb;
 }

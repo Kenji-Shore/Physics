@@ -12,6 +12,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 
+#include <stb_image.h>
+
 using namespace std;
 int main() {
     bool quit = false;
@@ -25,7 +27,10 @@ int main() {
         return -1;
     }
 
-    window = SDL_CreateWindow("Test Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1000, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    int windowX = 1600;
+    int windowY = 1000;
+
+    window = SDL_CreateWindow("Test Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowX, windowY, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (window == NULL) {
         std::cout << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         return -1;
@@ -130,6 +135,45 @@ int main() {
             0.982f,  0.099f,  0.879f
     };
 
+    static const GLfloat g_uv_buffer_data[] = {
+            0.000059f, 1.0f-0.000004f,
+            0.000103f, 1.0f-0.336048f,
+            0.335973f, 1.0f-0.335903f,
+            1.000023f, 1.0f-0.000013f,
+            0.667979f, 1.0f-0.335851f,
+            0.999958f, 1.0f-0.336064f,
+            0.667979f, 1.0f-0.335851f,
+            0.336024f, 1.0f-0.671877f,
+            0.667969f, 1.0f-0.671889f,
+            1.000023f, 1.0f-0.000013f,
+            0.668104f, 1.0f-0.000013f,
+            0.667979f, 1.0f-0.335851f,
+            0.000059f, 1.0f-0.000004f,
+            0.335973f, 1.0f-0.335903f,
+            0.336098f, 1.0f-0.000071f,
+            0.667979f, 1.0f-0.335851f,
+            0.335973f, 1.0f-0.335903f,
+            0.336024f, 1.0f-0.671877f,
+            1.000004f, 1.0f-0.671847f,
+            0.999958f, 1.0f-0.336064f,
+            0.667979f, 1.0f-0.335851f,
+            0.668104f, 1.0f-0.000013f,
+            0.335973f, 1.0f-0.335903f,
+            0.667979f, 1.0f-0.335851f,
+            0.335973f, 1.0f-0.335903f,
+            0.668104f, 1.0f-0.000013f,
+            0.336098f, 1.0f-0.000071f,
+            0.000103f, 1.0f-0.336048f,
+            0.000004f, 1.0f-0.671870f,
+            0.336024f, 1.0f-0.671877f,
+            0.000103f, 1.0f-0.336048f,
+            0.336024f, 1.0f-0.671877f,
+            0.335973f, 1.0f-0.335903f,
+            0.667969f, 1.0f-0.671889f,
+            1.000004f, 1.0f-0.671847f,
+            0.667979f, 1.0f-0.335851f
+    };
+
     GLuint vertexbuffer;
     glGenBuffers(1, &vertexbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -140,6 +184,11 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
 
+    GLuint uvbuffer;
+    glGenBuffers(1, &uvbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data, GL_STATIC_DRAW);
+
     GLuint programID = LoadShaders("../Vertex.vert", "../Fragment.frag");
 
     while (!quit) {
@@ -149,15 +198,16 @@ int main() {
             }
         }
 
-        glClearColor(0, 0, 0.4f, 1);
+        GLfloat colors[] = {
+                (rand()%100) / 100.0f,
+                (rand()%100) / 100.0f,
+                (rand()%100) / 100.0f,
+        };
+
+        glClearColor(colors[0] / 2, colors[1] / 2, colors[2] / 2, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(programID);
 
-        GLfloat colors[] = {
-            (rand()%100) / 100.0f,
-            (rand()%100) / 100.0f,
-            (rand()%100) / 100.0f,
-        };
         for (int i = 0; i < 12*3; i++) {
             g_color_buffer_data[3*i] = colors[0];
             g_color_buffer_data[3*i + 1] = colors[1];
@@ -175,15 +225,19 @@ int main() {
         glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
         //Camera projection
-        glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 1000.0f/600.0f, 0.1f, 100.0f);
+        glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float) windowX / windowY, 0.1f, 100.0f);
 
         //Camera matrix
-        glm::mat4 View = glm::lookAt(glm::vec3(4, 3, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        glm::mat4 View = glm::lookAt(glm::vec3(6 * cos(i), 3, 6 * sin(i)), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-        glm::mat4 scale = glm::scale(glm::vec3(sin(i), sin(i), sin(i)));
-        glm::mat4 rotate = glm::rotate(i, glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 translate = glm::translate(glm::vec3(0.0f, 0.0f, 0.0f));
+        glm::mat4 scale = glm::scale(glm::vec3(1, 1, 1));
+        glm::mat4 rotate = glm::rotate(i, glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::mat4 translate = glm::translate(glm::vec3(0, 0, 0));
 
         glm::mat4 Model = translate * rotate * scale;
 
