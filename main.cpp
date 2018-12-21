@@ -264,7 +264,7 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 12*3);
         glDisableVertexAttribArray(0);
         SDL_GL_SwapWindow(window);
-        i = i + 0.001f;
+        i = i + 0.002f;
     }
 
     SDL_DestroyWindow(window);
