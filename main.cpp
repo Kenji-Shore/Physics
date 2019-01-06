@@ -108,71 +108,101 @@ int main() {
     struct cubeData {
         vec3 position;
         int faces[3];
-        //mat4 rotation;
+        mat4 rotation;
     };
 
-    //negative x: 4
-    //positive x: 1
-    //negative z: 2
-    //positive z: 3
-    //negative y: 5
-    //positive y: 6
+    //negative x: 4 orange
+    //positive x: 1 red
+    //negative z: 2 green
+    //positive z: 3 blue
+    //negative y: 5 yellow
+    //positive y: 6 white
+
+    //currently showing red, white, blue
 
     cubeData arrangement[26] = {
-        {.position = vec3 (-2,-2,-2), .faces = {5, 4, 2}},
-        {.position = vec3 (-2,-2, 0), .faces = {5, 4, 0}},
-        {.position = vec3 (-2,-2, 2), .faces = {5, 4, 3}},
-        {.position = vec3 ( 0,-2,-2), .faces = {5, 0, 2}},
-        {.position = vec3 ( 0,-2, 0), .faces = {5, 0, 0}},
-        {.position = vec3 ( 0,-2, 2), .faces = {5, 0, 3}},
-        {.position = vec3 ( 2,-2,-2), .faces = {5, 1, 2}},
-        {.position = vec3 ( 2,-2, 0), .faces = {5, 1, 0}},
-        {.position = vec3 ( 2,-2, 2), .faces = {5, 1, 3}},
+        {.position = vec3 (-2,-2,-2), .faces = {5, 4, 2}, .rotation = mat4(1.0f)},
+        {.position = vec3 (-2,-2, 0), .faces = {5, 4, 0}, .rotation = mat4(1.0f)},
+        {.position = vec3 (-2,-2, 2), .faces = {5, 4, 3}, .rotation = mat4(1.0f)},
+        {.position = vec3 ( 0,-2,-2), .faces = {5, 0, 2}, .rotation = mat4(1.0f)},
+        {.position = vec3 ( 0,-2, 0), .faces = {5, 0, 0}, .rotation = mat4(1.0f)}, //yellow
+        {.position = vec3 ( 0,-2, 2), .faces = {5, 0, 3}, .rotation = mat4(1.0f)},
+        {.position = vec3 ( 2,-2,-2), .faces = {5, 1, 2}, .rotation = mat4(1.0f)},
+        {.position = vec3 ( 2,-2, 0), .faces = {5, 1, 0}, .rotation = mat4(1.0f)},
+        {.position = vec3 ( 2,-2, 2), .faces = {5, 1, 3}, .rotation = mat4(1.0f)},
 
-        {.position = vec3 (-2, 0,-2), .faces = {0, 4, 2}},
-        {.position = vec3 (-2, 0, 0), .faces = {0, 4, 0}},
-        {.position = vec3 (-2, 0, 2), .faces = {0, 4, 3}},
-        {.position = vec3 ( 0, 0,-2), .faces = {0, 0, 2}},
+        {.position = vec3 (-2, 0,-2), .faces = {0, 4, 2}, .rotation = mat4(1.0f)},
+        {.position = vec3 (-2, 0, 0), .faces = {0, 4, 0}, .rotation = mat4(1.0f)}, //orange
+        {.position = vec3 (-2, 0, 2), .faces = {0, 4, 3}, .rotation = mat4(1.0f)},
+        {.position = vec3 ( 0, 0,-2), .faces = {0, 0, 2}, .rotation = mat4(1.0f)}, //green
         //Center 0, 0, 0
-        {.position = vec3 ( 0, 0, 2), .faces = {0, 0, 3}},
-        {.position = vec3 ( 2, 0,-2), .faces = {0, 1, 2}},
-        {.position = vec3 ( 2, 0, 0), .faces = {0, 1, 0}},
-        {.position = vec3 ( 2, 0, 2), .faces = {0, 1, 3}},
+        {.position = vec3 ( 0, 0, 2), .faces = {0, 0, 3}, .rotation = mat4(1.0f)}, //blue
+        {.position = vec3 ( 2, 0,-2), .faces = {0, 1, 2}, .rotation = mat4(1.0f)},
+        {.position = vec3 ( 2, 0, 0), .faces = {0, 1, 0}, .rotation = mat4(1.0f)}, //red
+        {.position = vec3 ( 2, 0, 2), .faces = {0, 1, 3}, .rotation = mat4(1.0f)},
 
-        {.position = vec3 (-2, 2,-2), .faces = {6, 4, 2}},
-        {.position = vec3 (-2, 2, 0), .faces = {6, 4, 0}},
-        {.position = vec3 (-2, 2, 2), .faces = {6, 4, 3}},
-        {.position = vec3 ( 0, 2,-2), .faces = {6, 0, 2}},
-        {.position = vec3 ( 0, 2, 0), .faces = {6, 0, 0}},
-        {.position = vec3 ( 0, 2, 2), .faces = {6, 0, 3}},
-        {.position = vec3 ( 2, 2,-2), .faces = {6, 1, 2}},
-        {.position = vec3 ( 2, 2, 0), .faces = {6, 1, 0}},
-        {.position = vec3 ( 2, 2, 2), .faces = {6, 1, 3}},
+        {.position = vec3 (-2, 2,-2), .faces = {6, 4, 2}, .rotation = mat4(1.0f)},
+        {.position = vec3 (-2, 2, 0), .faces = {6, 4, 0}, .rotation = mat4(1.0f)},
+        {.position = vec3 (-2, 2, 2), .faces = {6, 4, 3}, .rotation = mat4(1.0f)},
+        {.position = vec3 ( 0, 2,-2), .faces = {6, 0, 2}, .rotation = mat4(1.0f)},
+        {.position = vec3 ( 0, 2, 0), .faces = {6, 0, 0}, .rotation = mat4(1.0f)}, //white
+        {.position = vec3 ( 0, 2, 2), .faces = {6, 0, 3}, .rotation = mat4(1.0f)},
+        {.position = vec3 ( 2, 2,-2), .faces = {6, 1, 2}, .rotation = mat4(1.0f)},
+        {.position = vec3 ( 2, 2, 0), .faces = {6, 1, 0}, .rotation = mat4(1.0f)},
+        {.position = vec3 ( 2, 2, 2), .faces = {6, 1, 3}, .rotation = mat4(1.0f)},
     };
 
     vector <Object> cubes = {};
 
-    vec3 temp_colors[] = {
-        vec3 (1, 0, 0),
-        vec3 (0, 1, 0),
-        vec3 (0, 0, 1)
-    };
+    //rotate((float) M_PI, vec3(0, 1, 0))
+    vec3 colorStore[26][3] {};
 
     for (unsigned int i = 0; i < 26; i++) {
-        vec3 newColors[] = {
-            colors[arrangement[i].faces[0]],
-            colors[arrangement[i].faces[1]],
-            colors[arrangement[i].faces[2]],
-        };
+        colorStore[i][0] = colors[arrangement[i].faces[0]];
+        colorStore[i][1] = colors[arrangement[i].faces[1]];
+        colorStore[i][2] = colors[arrangement[i].faces[2]];
 
-        Object cube (arrangement[i].position, vec3(1, 1, 1), rotate(0.0f, vec3(1.0f, 0.0f, 0.0f)), newColors);
+        Object cube (arrangement[i].position, vec3(1, 1, 1), arrangement[i].rotation, colorStore[i]);
         cubes.push_back(cube);
     }
 
+    float horizontalAngle = M_PI * 0.25f;
+    float verticalAngle = M_PI * 0.75f;
+
+    float zoom = 15.0f;
+    float mouseSpeed = 0.005f;
+
+    int lastTime = SDL_GetTicks();
+
     while (!quit) {
+        float deltaTime = (float) (SDL_GetTicks() - lastTime) / 1000.0f;
+        lastTime = SDL_GetTicks();
+
+        int x, y;
+        SDL_GetMouseState(&x, &y);
+        double xpos = (double) x;
+        double ypos = (double) y;
+
+        SDL_WarpMouseInWindow(window, windowX / 2, windowY / 2);
+
+        horizontalAngle += mouseSpeed * float(windowX / 2 - xpos);
+        verticalAngle = fmin(fmax(verticalAngle - mouseSpeed * float(windowY / 2 - ypos), -M_PI * 0.4f), M_PI * 0.4f);
+
+        vec3 direction(
+            cos(verticalAngle) * sin(horizontalAngle),
+            sin(verticalAngle),
+            cos(verticalAngle) * cos(horizontalAngle)
+        );
+
+        vec3 right (sin(horizontalAngle - 3.14f/2.0f), 0, cos(horizontalAngle - 3.14f/2.0f));
+
+        vec3 up = cross(right, direction);
+
         while (SDL_PollEvent(&sdlEvent) != 0) {
             if (sdlEvent.type == SDL_QUIT) {
                 quit = true;
+            } else if (sdlEvent.type == SDL_MOUSEWHEEL) {
+                zoom = fmin(fmax(zoom - sdlEvent.wheel.y, 8.0f), 30.0f);
             }
         }
 
@@ -193,7 +223,7 @@ int main() {
         glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float) windowX / windowY, 0.1f, 100.0f);
 
         //Camera matrix
-        glm::mat4 View = glm::lookAt(glm::vec3(10 * cos(i), 10, 10 * sin(i)), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        glm::mat4 View = lookAt(zoom * vec3(cos(verticalAngle) * sin(horizontalAngle), sin(verticalAngle), cos(verticalAngle) * cos(horizontalAngle)), vec3 (0, 0, 0), vec3(0, 1, 0));
 
         //glm::mat4 scale = glm::scale(glm::vec3(1, 1, 1));
         //glm::mat4 rotate = glm::rotate(i, glm::vec3(1.0f, 0.0f, 0.0f));
