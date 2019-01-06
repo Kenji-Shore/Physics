@@ -5,7 +5,7 @@
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <math.h>
-#include "shader.h"
+#include "loadShader.cpp"
 #include "loadObject.cpp"
 #include <glm/glm.hpp>
 
