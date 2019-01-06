@@ -16,8 +16,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <vector>
+#include "Object.h"
 
 using namespace std;
+using namespace glm;
+
 int main() {
     bool quit = false;
     SDL_Window* window;
@@ -92,6 +95,80 @@ int main() {
 
     stbi_image_free(data);
 
+    vec3 colors[] = {
+        vec3 (0, 0, 0), //0, black
+        vec3 (1, 0, 0), //1, red
+        vec3 (0, 1, 0), //2, green
+        vec3 (0, 0, 1), //3, blue
+        vec3 (1, 0.55, 0), //4, orange
+        vec3 (1, 1, 0), //5, yellow
+        vec3 (1, 1, 1), //6, white
+    };
+
+    struct cubeData {
+        vec3 position;
+        int faces[3];
+        //mat4 rotation;
+    };
+
+    //negative x: 4
+    //positive x: 1
+    //negative z: 2
+    //positive z: 3
+    //negative y: 5
+    //positive y: 6
+
+    cubeData arrangement[26] = {
+        {.position = vec3 (-2,-2,-2), .faces = {5, 4, 2}},
+        {.position = vec3 (-2,-2, 0), .faces = {5, 4, 0}},
+        {.position = vec3 (-2,-2, 2), .faces = {5, 4, 3}},
+        {.position = vec3 ( 0,-2,-2), .faces = {5, 0, 2}},
+        {.position = vec3 ( 0,-2, 0), .faces = {5, 0, 0}},
+        {.position = vec3 ( 0,-2, 2), .faces = {5, 0, 3}},
+        {.position = vec3 ( 2,-2,-2), .faces = {5, 1, 2}},
+        {.position = vec3 ( 2,-2, 0), .faces = {5, 1, 0}},
+        {.position = vec3 ( 2,-2, 2), .faces = {5, 1, 3}},
+
+        {.position = vec3 (-2, 0,-2), .faces = {0, 4, 2}},
+        {.position = vec3 (-2, 0, 0), .faces = {0, 4, 0}},
+        {.position = vec3 (-2, 0, 2), .faces = {0, 4, 3}},
+        {.position = vec3 ( 0, 0,-2), .faces = {0, 0, 2}},
+        //Center 0, 0, 0
+        {.position = vec3 ( 0, 0, 2), .faces = {0, 0, 3}},
+        {.position = vec3 ( 2, 0,-2), .faces = {0, 1, 2}},
+        {.position = vec3 ( 2, 0, 0), .faces = {0, 1, 0}},
+        {.position = vec3 ( 2, 0, 2), .faces = {0, 1, 3}},
+
+        {.position = vec3 (-2, 2,-2), .faces = {6, 4, 2}},
+        {.position = vec3 (-2, 2, 0), .faces = {6, 4, 0}},
+        {.position = vec3 (-2, 2, 2), .faces = {6, 4, 3}},
+        {.position = vec3 ( 0, 2,-2), .faces = {6, 0, 2}},
+        {.position = vec3 ( 0, 2, 0), .faces = {6, 0, 0}},
+        {.position = vec3 ( 0, 2, 2), .faces = {6, 0, 3}},
+        {.position = vec3 ( 2, 2,-2), .faces = {6, 1, 2}},
+        {.position = vec3 ( 2, 2, 0), .faces = {6, 1, 0}},
+        {.position = vec3 ( 2, 2, 2), .faces = {6, 1, 3}},
+    };
+
+    vector <Object> cubes = {};
+
+    vec3 temp_colors[] = {
+        vec3 (1, 0, 0),
+        vec3 (0, 1, 0),
+        vec3 (0, 0, 1)
+    };
+
+    for (unsigned int i = 0; i < 26; i++) {
+        vec3 newColors[] = {
+            colors[arrangement[i].faces[0]],
+            colors[arrangement[i].faces[1]],
+            colors[arrangement[i].faces[2]],
+        };
+
+        Object cube (arrangement[i].position, vec3(1, 1, 1), rotate(0.0f, vec3(1.0f, 0.0f, 0.0f)), newColors);
+        cubes.push_back(cube);
+    }
+
     while (!quit) {
         while (SDL_PollEvent(&sdlEvent) != 0) {
             if (sdlEvent.type == SDL_QUIT) {
@@ -99,8 +176,9 @@ int main() {
             }
         }
 
-        glClearColor(1, 1, 0, 1);
+        glClearColor(0.8, 0.8, 0.8, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         glUseProgram(programID);
 
         glEnableVertexAttribArray(0);
@@ -115,31 +193,23 @@ int main() {
         glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float) windowX / windowY, 0.1f, 100.0f);
 
         //Camera matrix
-        glm::mat4 View = glm::lookAt(glm::vec3(10 * cos(i), 3, 10 * sin(i)), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        glm::mat4 View = glm::lookAt(glm::vec3(10 * cos(i), 10, 10 * sin(i)), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-        glm::mat4 scale = glm::scale(glm::vec3(1, 1, 1));
-        glm::mat4 rotate = glm::rotate(i, glm::vec3(1.0f, 0.0f, 0.0f));
-        glm::mat4 translate = glm::translate(glm::vec3(0, 0, 0));
+        //glm::mat4 scale = glm::scale(glm::vec3(1, 1, 1));
+        //glm::mat4 rotate = glm::rotate(i, glm::vec3(1.0f, 0.0f, 0.0f));
+        //glm::mat4 translate = glm::translate(glm::vec3(0, 0, 0));
 
-        glm::mat4 Model = translate * rotate * scale;
+        //glm::mat4 Model = translate * rotate * scale;
 
-        glm::mat4 mvp = Projection * View * Model;
+        //glm::mat4 mvp = Projection * View * Model;
 
-        GLuint MatrixID = glGetUniformLocation(programID, "MVP");
-        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
-
-        glm::vec3 colors[] = {
-                glm::vec3(0, 0.1, 0.6),
-                glm::vec3(0, 0.5, 1),
-                glm::vec3(0.3, 0.1, 0.3),
+        for (unsigned int i = 0; i < cubes.size(); i++) {
+            cubes[i].Draw(programID, Projection, View, vertices.size());
         };
 
-        GLuint ColorsID = glGetUniformLocation(programID, "Colors");
-        glUniform3fv(ColorsID, 3, &colors[0][0]);
-
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size());
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
+
         SDL_GL_SwapWindow(window);
         i = i + 0.002f;
     }

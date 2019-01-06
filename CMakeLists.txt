@@ -8,6 +8,6 @@ include_directories(/usr/local/include)
 link_directories(/usr/local/lib)
 
 find_library(SDL2_FRAMEWORK SDL2)
-add_executable(Physics main.cpp)
+add_executable(Physics main.cpp Object.cpp Object.h)
 target_link_libraries(Physics libGLEW.a ${OPENGL_LIBRARIES})
 target_link_libraries(Physics ${SDL2_FRAMEWORK})
