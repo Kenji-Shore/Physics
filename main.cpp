@@ -128,6 +128,15 @@ int main() {
         GLuint MatrixID = glGetUniformLocation(programID, "MVP");
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
+        glm::vec3 colors[] = {
+                glm::vec3(0, 0.1, 0.6),
+                glm::vec3(0, 0.5, 1),
+                glm::vec3(0.3, 0.1, 0.3),
+        };
+
+        GLuint ColorsID = glGetUniformLocation(programID, "Colors");
+        glUniform3fv(ColorsID, 3, &colors[0][0]);
+
         glDrawArrays(GL_TRIANGLES, 0, vertices.size());
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
