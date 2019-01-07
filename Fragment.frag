@@ -3,6 +3,7 @@
 out vec3 color;
 //in vec3 fragmentColor;
 in vec2 UV;
+in vec3 normal;
 uniform sampler2D textureSampler;
 uniform vec3 Colors[3];
 

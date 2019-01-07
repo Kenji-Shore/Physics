@@ -91,9 +91,19 @@ struct rotation {
     int direction;
     float angle;
     bool rotating = false;
+    float speed = 8.0f;
 };
 
 rotation currentRotation;
+bool solving = false;
+int scrambleCount = 0;
+
+struct moves {
+    vec3 side;
+    int direction;
+};
+
+vector <moves> solution;
 
 void turn (vec3 side, int direction) {
     currentRotation.cubes.clear();
@@ -152,7 +162,7 @@ int main() {
     int windowX = 800;
     int windowY = 600;
 
-    window = SDL_CreateWindow("Test Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowX, windowY, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Rubik's Cube \"Solver\"", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowX, windowY, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (window == NULL) {
         std::cout << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         return -1;
@@ -194,6 +204,11 @@ int main() {
     glGenBuffers(1, &uvbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
     glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(vec2), &uvs[0], GL_STATIC_DRAW);
+
+    GLuint normalbuffer;
+    glGenBuffers(1, &normalbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(vec3), &normals[0], GL_STATIC_DRAW);
 
     GLuint programID = LoadShaders("../Vertex.vert", "../Fragment.frag");
 
@@ -273,6 +288,10 @@ int main() {
         glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
         //Camera projection
         glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float) windowX / windowY, 0.1f, 100.0f);
 
@@ -280,7 +299,7 @@ int main() {
         glm::mat4 View = lookAt(zoom * vec3(cos(verticalAngle) * sin(horizontalAngle), sin(verticalAngle), cos(verticalAngle) * cos(horizontalAngle)), vec3 (0, 0, 0), vec3(0, 1, 0));
 
         if (currentRotation.rotating) {
-            currentRotation.angle = fmin(currentRotation.angle + deltaTime * 8.0f, (float) M_PI / 2);
+            currentRotation.angle = fmin(currentRotation.angle + deltaTime * currentRotation.speed, (float) M_PI / 2);
 
             for (unsigned int i = 0; i < currentRotation.cubes.size(); i++) {
                 cubeRotation info = currentRotation.cubes[i];
@@ -299,21 +318,39 @@ int main() {
                 currentRotation.rotating = false;
             }
         } else {
-            vec3 options[] = {
-                vec3(1, 0, 0),
-                vec3(-1, 0, 0),
-                vec3(0, 1, 0),
-                vec3(0, -1, 0),
-                vec3(0, 0, 1),
-                vec3(0, 0, -1),
-            };
+            if (!solving) {
+                vec3 options[] = {
+                    vec3(1, 0, 0),
+                    vec3(-1, 0, 0),
+                    vec3(0, 1, 0),
+                    vec3(0, -1, 0),
+                    vec3(0, 0, 1),
+                    vec3(0, 0, -1),
+                };
 
-            int direction = -1;
-            if ((rand() % 2) > 0.5f) {
-                direction = 1;
+                int direction = -1;
+                if ((rand() % 2) > 0.5f) {
+                    direction = 1;
+                }
+                //readSide(vec3(0, 1, 0));
+                vec3 side = options[rand() % 6];
+                turn(side, direction);
+                solution.push_back({.side = side, .direction = direction});
+                scrambleCount += 1;
+
+                if (scrambleCount > 15) {
+                    currentRotation.speed = 4.0f;
+                    scrambleCount = 0;
+                    solving = true;
+                }
+            } else {
+                turn(solution[solution.size() - 1].side, -solution[solution.size() - 1].direction);
+                solution.erase(solution.end() - 1);
+                if (solution.size() == 0) {
+                    currentRotation.speed = 12.0f;
+                    solving = false;
+                }
             }
-            //readSide(vec3(0, 1, 0));
-            turn(options[rand() % 6], direction);
         }
         for (unsigned int i = 0; i < cubes.size(); i++) {
             cubes[i].Draw(programID, Projection, View, vertices.size());
@@ -321,6 +358,7 @@ int main() {
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
 
         SDL_GL_SwapWindow(window);
     }
