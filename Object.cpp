@@ -8,14 +8,14 @@ using namespace glm;
 using namespace std;
 
 Object::Object(vec3 newTranslate, vec3 newScale, mat4 newRotate, vec3 newColors[3]) {
-    Translate = translate(newTranslate);
-    Scale = scale(newScale);
+    Translate = newTranslate;
+    Scale = newScale;
     Rotate = newRotate;
     Colors = newColors;
 }
 
 void Object::Draw(GLuint programID, mat4 Projection, mat4 View, GLuint vertexCount) {
-    mat4 Model = Translate * Rotate * Scale;
+    mat4 Model = translate(Translate) * Rotate * scale(Scale);
     mat4 mvp = Projection * View * Model;
 
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");

@@ -17,15 +17,14 @@
 using namespace glm;
 
 class Object {
-    mat4 Translate;
-    mat4 Scale;
-    mat4 Rotate;
-    vec3* Colors;
-
     public:
+        vec3 Translate;
+        vec3 Scale;
+        mat4 Rotate;
         Object (vec3, vec3, mat4, vec3[3]);
         void Draw(GLuint, mat4, mat4, GLuint);
-
+    private:
+        vec3* Colors;
 };
 
 

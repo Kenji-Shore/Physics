@@ -21,6 +21,97 @@
 using namespace std;
 using namespace glm;
 
+vec3 colors[] = {
+    vec3 (0, 0, 0), //0, black
+    vec3 (1, 0, 0), //1, red
+    vec3 (0, 1, 0), //2, green
+    vec3 (0, 0, 1), //3, blue
+    vec3 (1, 0.55, 0), //4, orange
+    vec3 (1, 1, 0), //5, yellow
+    vec3 (1, 1, 1), //6, white
+};
+
+struct cubeData {
+    vec3 position;
+    int faces[3];
+    mat4 rotation;
+};
+
+//negative x: 4 orange
+//positive x: 1 red
+//negative z: 2 green
+//positive z: 3 blue
+//negative y: 5 yellow
+//positive y: 6 white
+
+cubeData arrangement[26] = {
+    {.position = vec3 (-2,-2,-2), .faces = {5, 4, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
+    {.position = vec3 (-2,-2, 0), .faces = {5, 4, 0}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
+    {.position = vec3 (-2,-2, 2), .faces = {5, 3, 4}, .rotation = rotate((float) M_PI / 2, vec3(1, 0, 0))},
+    {.position = vec3 ( 0,-2,-2), .faces = {5, 0, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
+    {.position = vec3 ( 0,-2, 0), .faces = {5, 0, 0}, .rotation = rotate((float) M_PI / 2, vec3(1, 0, 0))}, //yellow
+    {.position = vec3 ( 0,-2, 2), .faces = {5, 0, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
+    {.position = vec3 ( 2,-2,-2), .faces = {5, 2, 1}, .rotation = rotate((float) -M_PI, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
+    {.position = vec3 ( 2,-2, 0), .faces = {5, 1, 0}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
+    {.position = vec3 ( 2,-2, 2), .faces = {5, 1, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
+
+    {.position = vec3 (-2, 0,-2), .faces = {0, 4, 2}, .rotation = rotate((float) M_PI / 2, vec3(1, 0, 0)) * rotate((float) M_PI / 2, vec3(0, 0, 1))},
+    {.position = vec3 (-2, 0, 0), .faces = {0, 4, 0}, .rotation = rotate((float) M_PI / 2, vec3(0, 0, 1))}, //orange
+    {.position = vec3 (-2, 0, 2), .faces = {0, 4, 3}, .rotation = rotate((float) -M_PI / 2, vec3(1, 0, 0)) * rotate((float) M_PI / 2, vec3(0, 0, 1))},
+    {.position = vec3 ( 0, 0,-2), .faces = {0, 0, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0))}, //green
+    //Center 0, 0, 0
+    {.position = vec3 ( 0, 0, 2), .faces = {0, 0, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0))}, //blue
+    {.position = vec3 ( 2, 0,-2), .faces = {0, 1, 2}, .rotation = rotate((float) -M_PI / 2, vec3(1, 0, 0)) * rotate((float) -M_PI / 2, vec3(0, 0, 1))},
+    {.position = vec3 ( 2, 0, 0), .faces = {0, 1, 0}, .rotation = rotate((float) -M_PI / 2, vec3(0, 0, 1))}, //red
+    {.position = vec3 ( 2, 0, 2), .faces = {0, 1, 3}, .rotation = rotate((float) M_PI / 2, vec3(1, 0, 0)) * rotate((float) -M_PI / 2, vec3(0, 0, 1))},
+
+    {.position = vec3 (-2, 2,-2), .faces = {6, 2, 4}, .rotation = rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+    {.position = vec3 (-2, 2, 0), .faces = {6, 4, 0}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+    {.position = vec3 (-2, 2, 2), .faces = {6, 4, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+    {.position = vec3 ( 0, 2,-2), .faces = {6, 0, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+    {.position = vec3 ( 0, 2, 0), .faces = {6, 0, 0}, .rotation = rotate((float) -M_PI / 2, vec3(1, 0, 0))}, //white
+    {.position = vec3 ( 0, 2, 2), .faces = {6, 0, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+    {.position = vec3 ( 2, 2,-2), .faces = {6, 1, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+    {.position = vec3 ( 2, 2, 0), .faces = {6, 1, 0}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+    {.position = vec3 ( 2, 2, 2), .faces = {6, 3, 1}, .rotation = rotate((float) M_PI, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+};
+
+vec3 colorStore[26][3] {};
+vector <Object> cubes = {};
+
+struct cubeRotation {
+    Object* cube;
+    vec3 initialVector;
+    mat4 initialRot;
+};
+
+struct rotation {
+    vector <cubeRotation> cubes;
+    vec3 side;
+    int direction;
+    float angle;
+    bool rotating = false;
+};
+
+rotation currentRotation;
+
+void turn(vec3 side, int direction) {
+    currentRotation.cubes.clear();
+    currentRotation.direction = direction;
+    currentRotation.angle = 0.0f;
+    currentRotation.side = side;
+
+    for (unsigned int i = 0; i < cubes.size(); i++) {
+        Object* cube = &cubes[i];
+        vec3 sign = cube->Translate * side;
+        if ((sign[0] > 0) || (sign[1] > 0) || (sign[2] > 0)) {
+            currentRotation.cubes.push_back({.cube = cube, .initialVector = cube->Translate, .initialRot = cube->Rotate});
+        }
+    }
+
+    currentRotation.rotating = true;
+}
+
 int main() {
     bool quit = false;
     SDL_Window* window;
@@ -63,21 +154,21 @@ int main() {
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
 
-    vector <glm::vec3> vertices;
-    vector <glm::vec2> uvs;
-    vector <glm::vec3> normals;
+    vector <vec3> vertices;
+    vector <vec2> uvs;
+    vector <vec3> normals;
 
     bool res = LoadObjects("../cube.obj", vertices, uvs, normals);
 
     GLuint vertexbuffer;
     glGenBuffers(1, &vertexbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec3), &vertices[0], GL_STATIC_DRAW);
 
     GLuint uvbuffer;
     glGenBuffers(1, &uvbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(vec2), &uvs[0], GL_STATIC_DRAW);
 
     GLuint programID = LoadShaders("../Vertex.vert", "../Fragment.frag");
 
@@ -95,68 +186,6 @@ int main() {
 
     stbi_image_free(data);
 
-    vec3 colors[] = {
-        vec3 (0, 0, 0), //0, black
-        vec3 (1, 0, 0), //1, red
-        vec3 (0, 1, 0), //2, green
-        vec3 (0, 0, 1), //3, blue
-        vec3 (1, 0.55, 0), //4, orange
-        vec3 (1, 1, 0), //5, yellow
-        vec3 (1, 1, 1), //6, white
-    };
-
-    struct cubeData {
-        vec3 position;
-        int faces[3];
-        mat4 rotation;
-    };
-
-    //negative x: 4 orange
-    //positive x: 1 red
-    //negative z: 2 green
-    //positive z: 3 blue
-    //negative y: 5 yellow
-    //positive y: 6 white
-
-    //currently showing red, white, blue
-
-    cubeData arrangement[26] = {
-        {.position = vec3 (-2,-2,-2), .faces = {5, 4, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
-        {.position = vec3 (-2,-2, 0), .faces = {5, 4, 0}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
-        {.position = vec3 (-2,-2, 2), .faces = {5, 3, 4}, .rotation = rotate((float) M_PI / 2, vec3(1, 0, 0))},
-        {.position = vec3 ( 0,-2,-2), .faces = {5, 0, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
-        {.position = vec3 ( 0,-2, 0), .faces = {5, 0, 0}, .rotation = rotate((float) M_PI / 2, vec3(1, 0, 0))}, //yellow
-        {.position = vec3 ( 0,-2, 2), .faces = {5, 0, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
-        {.position = vec3 ( 2,-2,-2), .faces = {5, 2, 1}, .rotation = rotate((float) -M_PI, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
-        {.position = vec3 ( 2,-2, 0), .faces = {5, 1, 0}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
-        {.position = vec3 ( 2,-2, 2), .faces = {5, 1, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
-
-        {.position = vec3 (-2, 0,-2), .faces = {0, 4, 2}, .rotation = rotate((float) M_PI / 2, vec3(1, 0, 0)) * rotate((float) M_PI / 2, vec3(0, 0, 1))},
-        {.position = vec3 (-2, 0, 0), .faces = {0, 4, 0}, .rotation = rotate((float) M_PI / 2, vec3(0, 0, 1))}, //orange
-        {.position = vec3 (-2, 0, 2), .faces = {0, 4, 3}, .rotation = rotate((float) -M_PI / 2, vec3(1, 0, 0)) * rotate((float) M_PI / 2, vec3(0, 0, 1))},
-        {.position = vec3 ( 0, 0,-2), .faces = {0, 0, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0))}, //green
-        //Center 0, 0, 0
-        {.position = vec3 ( 0, 0, 2), .faces = {0, 0, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0))}, //blue
-        {.position = vec3 ( 2, 0,-2), .faces = {0, 1, 2}, .rotation = rotate((float) -M_PI / 2, vec3(1, 0, 0)) * rotate((float) -M_PI / 2, vec3(0, 0, 1))},
-        {.position = vec3 ( 2, 0, 0), .faces = {0, 1, 0}, .rotation = rotate((float) -M_PI / 2, vec3(0, 0, 1))}, //red
-        {.position = vec3 ( 2, 0, 2), .faces = {0, 1, 3}, .rotation = rotate((float) M_PI / 2, vec3(1, 0, 0)) * rotate((float) -M_PI / 2, vec3(0, 0, 1))},
-
-        {.position = vec3 (-2, 2,-2), .faces = {6, 2, 4}, .rotation = rotate((float) -M_PI / 2, vec3(1, 0, 0))},
-        {.position = vec3 (-2, 2, 0), .faces = {6, 4, 0}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
-        {.position = vec3 (-2, 2, 2), .faces = {6, 4, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
-        {.position = vec3 ( 0, 2,-2), .faces = {6, 0, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
-        {.position = vec3 ( 0, 2, 0), .faces = {6, 0, 0}, .rotation = rotate((float) -M_PI / 2, vec3(1, 0, 0))}, //white
-        {.position = vec3 ( 0, 2, 2), .faces = {6, 0, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
-        {.position = vec3 ( 2, 2,-2), .faces = {6, 1, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
-        {.position = vec3 ( 2, 2, 0), .faces = {6, 1, 0}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
-        {.position = vec3 ( 2, 2, 2), .faces = {6, 3, 1}, .rotation = rotate((float) M_PI, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
-    };
-
-    vector <Object> cubes = {};
-
-    //rotate((float) M_PI, vec3(0, 1, 0))
-    vec3 colorStore[26][3] {};
-
     for (unsigned int i = 0; i < 26; i++) {
         colorStore[i][0] = colors[arrangement[i].faces[0]];
         colorStore[i][1] = colors[arrangement[i].faces[1]];
@@ -173,6 +202,8 @@ int main() {
     float mouseSpeed = 0.005f;
 
     int lastTime = SDL_GetTicks();
+
+    turn(vec3(0, 1.0f, 0), 1);
 
     while (!quit) {
         float deltaTime = (float) (SDL_GetTicks() - lastTime) / 1000.0f;
@@ -225,13 +256,19 @@ int main() {
         //Camera matrix
         glm::mat4 View = lookAt(zoom * vec3(cos(verticalAngle) * sin(horizontalAngle), sin(verticalAngle), cos(verticalAngle) * cos(horizontalAngle)), vec3 (0, 0, 0), vec3(0, 1, 0));
 
-        //glm::mat4 scale = glm::scale(glm::vec3(1, 1, 1));
-        //glm::mat4 rotate = glm::rotate(i, glm::vec3(1.0f, 0.0f, 0.0f));
-        //glm::mat4 translate = glm::translate(glm::vec3(0, 0, 0));
-
-        //glm::mat4 Model = translate * rotate * scale;
-
-        //glm::mat4 mvp = Projection * View * Model;
+        if (currentRotation.rotating) {
+            for (unsigned int i = 0; i < currentRotation.cubes.size(); i++) {
+                cubeRotation info = currentRotation.cubes[i];
+                mat4 newRotation = rotate(currentRotation.direction * currentRotation.angle, currentRotation.side);
+                Object* cube = info.cube;
+                cube->Translate = vec3(newRotation * vec4(info.initialVector, 0.0f));
+                cube->Rotate = newRotation * info.initialRot;
+            }
+            currentRotation.angle = fmin(currentRotation.angle + deltaTime * 2.0f, (float) M_PI / 2);
+            if (currentRotation.angle == (float) M_PI / 2) {
+                currentRotation.rotating = false;
+            }
+        }
 
         for (unsigned int i = 0; i < cubes.size(); i++) {
             cubes[i].Draw(programID, Projection, View, vertices.size());
@@ -241,7 +278,6 @@ int main() {
         glDisableVertexAttribArray(1);
 
         SDL_GL_SwapWindow(window);
-        i = i + 0.002f;
     }
 
     SDL_DestroyWindow(window);
