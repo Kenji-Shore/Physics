@@ -95,7 +95,7 @@ struct rotation {
 
 rotation currentRotation;
 
-void turn(vec3 side, int direction) {
+void turn (vec3 side, int direction) {
     currentRotation.cubes.clear();
     currentRotation.direction = direction;
     currentRotation.angle = 0.0f;
@@ -110,6 +110,31 @@ void turn(vec3 side, int direction) {
     }
 
     currentRotation.rotating = true;
+}
+
+void readSide (vec3 side) {
+    for (unsigned int i = 0; i < cubes.size(); i++) {
+        Object *cube = &cubes[i];
+        vec3 sign = cube->Translate * side;
+        if ((sign[0] > 0) || (sign[1] > 0) || (sign[2] > 0)) {
+            int* faces;
+            vec3 directions[3] = {
+                vec3 (0, 0, 1),
+                vec3 (0, 1, 0),
+                vec3 (1, 0, 0),
+            };
+
+            faces = arrangement[cube->ID].faces;
+
+            for (unsigned int j = 0; j < 3; j++) {
+                vec3 direction = vec3(cube->Rotate * vec4(directions[j], 0.0f)) * side;
+
+                if (round(length(direction)) > 0) {
+                    cout<<faces[j]<<endl;
+                }
+            }
+        }
+    }
 }
 
 int main() {
@@ -191,7 +216,7 @@ int main() {
         colorStore[i][1] = colors[arrangement[i].faces[1]];
         colorStore[i][2] = colors[arrangement[i].faces[2]];
 
-        Object cube (arrangement[i].position, vec3(1, 1, 1), arrangement[i].rotation, colorStore[i]);
+        Object cube (i, arrangement[i].position, vec3(1, 1, 1), arrangement[i].rotation, colorStore[i]);
         cubes.push_back(cube);
     }
 
@@ -287,6 +312,7 @@ int main() {
             if ((rand() % 2) > 0.5f) {
                 direction = 1;
             }
+            //readSide(vec3(0, 1, 0));
             turn(options[rand() % 6], direction);
         }
         for (unsigned int i = 0; i < cubes.size(); i++) {

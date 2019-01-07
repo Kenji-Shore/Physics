@@ -7,7 +7,8 @@
 using namespace glm;
 using namespace std;
 
-Object::Object(vec3 newTranslate, vec3 newScale, mat4 newRotate, vec3 newColors[3]) {
+Object::Object(int newID, vec3 newTranslate, vec3 newScale, mat4 newRotate, vec3 newColors[3]) {
+    ID = newID;
     Translate = newTranslate;
     Scale = newScale;
     Rotate = newRotate;

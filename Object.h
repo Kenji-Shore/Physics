@@ -21,7 +21,8 @@ class Object {
         vec3 Translate;
         vec3 Scale;
         mat4 Rotate;
-        Object (vec3, vec3, mat4, vec3[3]);
+        int ID;
+        Object (int, vec3, vec3, mat4, vec3[3]);
         void Draw(GLuint, mat4, mat4, GLuint);
     private:
         vec3* Colors;
