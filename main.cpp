@@ -121,35 +121,35 @@ int main() {
     //currently showing red, white, blue
 
     cubeData arrangement[26] = {
-        {.position = vec3 (-2,-2,-2), .faces = {5, 4, 2}, .rotation = mat4(1.0f)},
-        {.position = vec3 (-2,-2, 0), .faces = {5, 4, 0}, .rotation = mat4(1.0f)},
-        {.position = vec3 (-2,-2, 2), .faces = {5, 4, 3}, .rotation = mat4(1.0f)},
-        {.position = vec3 ( 0,-2,-2), .faces = {5, 0, 2}, .rotation = mat4(1.0f)},
-        {.position = vec3 ( 0,-2, 0), .faces = {5, 0, 0}, .rotation = mat4(1.0f)}, //yellow
-        {.position = vec3 ( 0,-2, 2), .faces = {5, 0, 3}, .rotation = mat4(1.0f)},
-        {.position = vec3 ( 2,-2,-2), .faces = {5, 1, 2}, .rotation = mat4(1.0f)},
-        {.position = vec3 ( 2,-2, 0), .faces = {5, 1, 0}, .rotation = mat4(1.0f)},
-        {.position = vec3 ( 2,-2, 2), .faces = {5, 1, 3}, .rotation = mat4(1.0f)},
+        {.position = vec3 (-2,-2,-2), .faces = {5, 4, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
+        {.position = vec3 (-2,-2, 0), .faces = {5, 4, 0}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
+        {.position = vec3 (-2,-2, 2), .faces = {5, 3, 4}, .rotation = rotate((float) M_PI / 2, vec3(1, 0, 0))},
+        {.position = vec3 ( 0,-2,-2), .faces = {5, 0, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
+        {.position = vec3 ( 0,-2, 0), .faces = {5, 0, 0}, .rotation = rotate((float) M_PI / 2, vec3(1, 0, 0))}, //yellow
+        {.position = vec3 ( 0,-2, 2), .faces = {5, 0, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
+        {.position = vec3 ( 2,-2,-2), .faces = {5, 2, 1}, .rotation = rotate((float) -M_PI, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
+        {.position = vec3 ( 2,-2, 0), .faces = {5, 1, 0}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
+        {.position = vec3 ( 2,-2, 2), .faces = {5, 1, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
 
-        {.position = vec3 (-2, 0,-2), .faces = {0, 4, 2}, .rotation = mat4(1.0f)},
-        {.position = vec3 (-2, 0, 0), .faces = {0, 4, 0}, .rotation = mat4(1.0f)}, //orange
-        {.position = vec3 (-2, 0, 2), .faces = {0, 4, 3}, .rotation = mat4(1.0f)},
-        {.position = vec3 ( 0, 0,-2), .faces = {0, 0, 2}, .rotation = mat4(1.0f)}, //green
+        {.position = vec3 (-2, 0,-2), .faces = {0, 4, 2}, .rotation = rotate((float) M_PI / 2, vec3(1, 0, 0)) * rotate((float) M_PI / 2, vec3(0, 0, 1))},
+        {.position = vec3 (-2, 0, 0), .faces = {0, 4, 0}, .rotation = rotate((float) M_PI / 2, vec3(0, 0, 1))}, //orange
+        {.position = vec3 (-2, 0, 2), .faces = {0, 4, 3}, .rotation = rotate((float) -M_PI / 2, vec3(1, 0, 0)) * rotate((float) M_PI / 2, vec3(0, 0, 1))},
+        {.position = vec3 ( 0, 0,-2), .faces = {0, 0, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0))}, //green
         //Center 0, 0, 0
-        {.position = vec3 ( 0, 0, 2), .faces = {0, 0, 3}, .rotation = mat4(1.0f)}, //blue
-        {.position = vec3 ( 2, 0,-2), .faces = {0, 1, 2}, .rotation = mat4(1.0f)},
-        {.position = vec3 ( 2, 0, 0), .faces = {0, 1, 0}, .rotation = mat4(1.0f)}, //red
-        {.position = vec3 ( 2, 0, 2), .faces = {0, 1, 3}, .rotation = mat4(1.0f)},
+        {.position = vec3 ( 0, 0, 2), .faces = {0, 0, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0))}, //blue
+        {.position = vec3 ( 2, 0,-2), .faces = {0, 1, 2}, .rotation = rotate((float) -M_PI / 2, vec3(1, 0, 0)) * rotate((float) -M_PI / 2, vec3(0, 0, 1))},
+        {.position = vec3 ( 2, 0, 0), .faces = {0, 1, 0}, .rotation = rotate((float) -M_PI / 2, vec3(0, 0, 1))}, //red
+        {.position = vec3 ( 2, 0, 2), .faces = {0, 1, 3}, .rotation = rotate((float) M_PI / 2, vec3(1, 0, 0)) * rotate((float) -M_PI / 2, vec3(0, 0, 1))},
 
-        {.position = vec3 (-2, 2,-2), .faces = {6, 4, 2}, .rotation = mat4(1.0f)},
-        {.position = vec3 (-2, 2, 0), .faces = {6, 4, 0}, .rotation = mat4(1.0f)},
-        {.position = vec3 (-2, 2, 2), .faces = {6, 4, 3}, .rotation = mat4(1.0f)},
-        {.position = vec3 ( 0, 2,-2), .faces = {6, 0, 2}, .rotation = mat4(1.0f)},
-        {.position = vec3 ( 0, 2, 0), .faces = {6, 0, 0}, .rotation = mat4(1.0f)}, //white
-        {.position = vec3 ( 0, 2, 2), .faces = {6, 0, 3}, .rotation = mat4(1.0f)},
-        {.position = vec3 ( 2, 2,-2), .faces = {6, 1, 2}, .rotation = mat4(1.0f)},
-        {.position = vec3 ( 2, 2, 0), .faces = {6, 1, 0}, .rotation = mat4(1.0f)},
-        {.position = vec3 ( 2, 2, 2), .faces = {6, 1, 3}, .rotation = mat4(1.0f)},
+        {.position = vec3 (-2, 2,-2), .faces = {6, 2, 4}, .rotation = rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+        {.position = vec3 (-2, 2, 0), .faces = {6, 4, 0}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+        {.position = vec3 (-2, 2, 2), .faces = {6, 4, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+        {.position = vec3 ( 0, 2,-2), .faces = {6, 0, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+        {.position = vec3 ( 0, 2, 0), .faces = {6, 0, 0}, .rotation = rotate((float) -M_PI / 2, vec3(1, 0, 0))}, //white
+        {.position = vec3 ( 0, 2, 2), .faces = {6, 0, 3}, .rotation = rotate((float) M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+        {.position = vec3 ( 2, 2,-2), .faces = {6, 1, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+        {.position = vec3 ( 2, 2, 0), .faces = {6, 1, 0}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
+        {.position = vec3 ( 2, 2, 2), .faces = {6, 3, 1}, .rotation = rotate((float) M_PI, vec3(0, 1, 0)) * rotate((float) -M_PI / 2, vec3(1, 0, 0))},
     };
 
     vector <Object> cubes = {};
