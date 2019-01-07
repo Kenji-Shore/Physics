@@ -98,6 +98,9 @@ rotation currentRotation;
 bool solving = false;
 int scrambleCount = 0;
 
+vec3 lightDirection = vec3(0.5, -0.5, 0.5);
+vec3 ambient = vec3(0.1, 0.1, 0.1);
+
 struct moves {
     vec3 side;
     int direction;
@@ -173,6 +176,9 @@ int main() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+
     glContext = SDL_GL_CreateContext(window);
     if (glContext == NULL) {
         std::cout << "OpenGL context could not be created! SDL_Error: " << SDL_GetError() << std::endl;
@@ -184,6 +190,8 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+
+    glEnable(GL_MULTISAMPLE);
 
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
@@ -291,6 +299,12 @@ int main() {
         glEnableVertexAttribArray(2);
         glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+        GLuint LightingID = glGetUniformLocation(programID, "LightDirection");
+        GLuint AmbientID = glGetUniformLocation(programID, "Ambient");
+
+        glUniform3fv(LightingID, 1, &lightDirection[0]);
+        glUniform3fv(AmbientID, 1, &ambient[0]);
 
         //Camera projection
         glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float) windowX / windowY, 0.1f, 100.0f);

@@ -19,6 +19,9 @@ void Object::Draw(GLuint programID, mat4 Projection, mat4 View, GLuint vertexCou
     mat4 Model = translate(Translate) * Rotate * scale(Scale);
     mat4 mvp = Projection * View * Model;
 
+    GLuint RotationID = glGetUniformLocation(programID, "ModelRotation");
+    glUniformMatrix4fv(RotationID, 1, GL_FALSE, &Rotate[0][0]);
+
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
