@@ -16,6 +16,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <vector>
+#include <map>
 #include "Object.h"
 
 using namespace std;
@@ -24,11 +25,89 @@ using namespace glm;
 vec3 colors[] = {
     vec3 (0, 0, 0), //0, black
     vec3 (1, 0, 0), //1, red
-    vec3 (0, 1, 0), //2, green
-    vec3 (0, 0, 1), //3, blue
+    vec3 (0, 0, 1), //2, blue
+    vec3 (0, 1, 0), //3, green
     vec3 (1, 0.55, 0), //4, orange
     vec3 (1, 1, 0), //5, yellow
     vec3 (1, 1, 1), //6, white
+};
+
+vec3 sideOrder[6] = {
+    vec3(1, 0, 0),
+    vec3(-1, 0, 0),
+    vec3(0, 0, 1),
+    vec3(0, 0, -1),
+    vec3(0, 1, 0),
+    vec3(0, -1, 0),
+};
+
+vec3 faceOrder[6][9] = {
+    {
+        vec3 (2,  2, -2),
+        vec3 (2,  0, -2),
+        vec3 (2, -2, -2),
+        vec3 (2, -2,  0),
+        vec3 (2, -2,  2),
+        vec3 (2,  0,  2),
+        vec3 (2,  2,  2),
+        vec3 (2,  0,  2),
+        vec3 (2,  0,  0),
+    },
+    {
+        vec3 (-2,  2, 2),
+        vec3 (-2,  0, 2),
+        vec3 (-2, -2, 2),
+        vec3 (-2, -2,  0),
+        vec3 (-2, -2, -2),
+        vec3 (-2,  0, -2),
+        vec3 (-2,  2, -2),
+        vec3 (-2,  0, -2),
+        vec3 (-2,  0,  0),
+    },
+    {
+        vec3 (2,  2, 2),
+        vec3 (2,  0, 2),
+        vec3 (2, -2, 2),
+        vec3 (0, -2,  2),
+        vec3 (-2, -2,  2),
+        vec3 (-2,  0,  2),
+        vec3 (-2,  2,  2),
+        vec3 (-2,  0,  2),
+        vec3 (0,  0,  2),
+    },
+    {
+        vec3 (-2,  2, -2),
+        vec3 (-2,  0, -2),
+        vec3 (-2, -2, -2),
+        vec3 (0, -2,  -2),
+        vec3 (2, -2,  -2),
+        vec3 (2,  0,  -2),
+        vec3 (2,  2,  -2),
+        vec3 (2,  0,  -2),
+        vec3 (0,  0,  -2),
+    },
+    {
+        vec3 (0,   2, -2),
+        vec3 (2,   2, -2),
+        vec3 (2,   2,  0),
+        vec3 (2,   2,  2),
+        vec3 (0,   2,  2),
+        vec3 (-2,  2,  2),
+        vec3 (-2,  2,  0),
+        vec3 (-2,  2, -2),
+        vec3 (0,   2,  0),
+    },
+    {
+        vec3 (0,   -2, -2),
+        vec3 (2,   -2, -2),
+        vec3 (2,   -2,  0),
+        vec3 (2,   -2,  2),
+        vec3 (0,   -2,  2),
+        vec3 (-2,  -2,  2),
+        vec3 (-2,  -2,  0),
+        vec3 (-2,  -2, -2),
+        vec3 (0,   -2,  0),
+    },
 };
 
 struct cubeData {
@@ -39,8 +118,8 @@ struct cubeData {
 
 //negative x: 4 orange
 //positive x: 1 red
-//negative z: 2 green
-//positive z: 3 blue
+//negative z: 2 blue
+//positive z: 3 green
 //negative y: 5 yellow
 //positive y: 6 white
 
@@ -98,9 +177,6 @@ rotation currentRotation;
 bool solving = false;
 int scrambleCount = 0;
 
-vec3 lightDirection = vec3(0.5, -0.5, 0.5);
-vec3 ambient = vec3(0.1, 0.1, 0.1);
-
 struct moves {
     vec3 side;
     int direction;
@@ -126,6 +202,16 @@ void turn (vec3 side, int direction) {
 }
 
 void readSide (vec3 side) {
+    int num;
+
+    for (unsigned int i = 0; i < 6; i++) {
+        if (sideOrder[i] == side) {
+            num = i;
+        }
+    }
+
+    int output[9];
+
     for (unsigned int i = 0; i < cubes.size(); i++) {
         Object *cube = &cubes[i];
         vec3 sign = cube->Translate * side;
@@ -143,10 +229,18 @@ void readSide (vec3 side) {
                 vec3 direction = vec3(cube->Rotate * vec4(directions[j], 0.0f)) * side;
 
                 if (round(length(direction)) > 0) {
-                    cout<<faces[j]<<endl;
+                    for (unsigned int k = 0; k < 9; k++) {
+                        if (faceOrder[num][k] == cube->Translate) {
+                            output[k] = faces[j];
+                        }
+                    }
                 }
             }
         }
+    }
+
+    for (unsigned int i = 0; i < 9; i++) {
+        cout<<output[i]<<endl;
     }
 }
 
@@ -251,6 +345,8 @@ int main() {
 
     int lastTime = SDL_GetTicks();
 
+    turn(vec3(1, 0, 0), -1);
+
     while (!quit) {
         float deltaTime = (float) (SDL_GetTicks() - lastTime) / 1000.0f;
         lastTime = SDL_GetTicks();
@@ -303,6 +399,9 @@ int main() {
         GLuint LightingID = glGetUniformLocation(programID, "LightDirection");
         GLuint AmbientID = glGetUniformLocation(programID, "Ambient");
 
+        vec3 lightDirection = vec3(0.7, -1, 0.7);
+        vec3 ambient = vec3(0.1, 0.1, 0.1);
+
         glUniform3fv(LightingID, 1, &lightDirection[0]);
         glUniform3fv(AmbientID, 1, &ambient[0]);
 
@@ -346,11 +445,13 @@ int main() {
                 if ((rand() % 2) > 0.5f) {
                     direction = 1;
                 }
-                //readSide(vec3(0, 1, 0));
+
                 vec3 side = options[rand() % 6];
-                turn(side, direction);
-                solution.push_back({.side = side, .direction = direction});
-                scrambleCount += 1;
+                readSide(vec3(0, 1, 0));
+                solving = true;
+                //turn(side, direction);
+                //solution.push_back({.side = side, .direction = direction});
+                //scrambleCount += 1;
 
                 if (scrambleCount > 15) {
                     currentRotation.speed = 4.0f;
@@ -358,12 +459,12 @@ int main() {
                     solving = true;
                 }
             } else {
-                turn(solution[solution.size() - 1].side, -solution[solution.size() - 1].direction);
-                solution.erase(solution.end() - 1);
-                if (solution.size() == 0) {
-                    currentRotation.speed = 12.0f;
-                    solving = false;
-                }
+                //turn(solution[solution.size() - 1].side, -solution[solution.size() - 1].direction);
+                //solution.erase(solution.end() - 1);
+                //if (solution.size() == 0) {
+                //    currentRotation.speed = 12.0f;
+                //    solving = false;
+                //}
             }
         }
         for (unsigned int i = 0; i < cubes.size(); i++) {
@@ -375,6 +476,7 @@ int main() {
         glDisableVertexAttribArray(2);
 
         SDL_GL_SwapWindow(window);
+        i += 0.005;
     }
 
     SDL_DestroyWindow(window);
