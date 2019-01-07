@@ -203,8 +203,6 @@ int main() {
 
     int lastTime = SDL_GetTicks();
 
-    turn(vec3(0, 1.0f, 0), 1);
-
     while (!quit) {
         float deltaTime = (float) (SDL_GetTicks() - lastTime) / 1000.0f;
         lastTime = SDL_GetTicks();
@@ -257,6 +255,8 @@ int main() {
         glm::mat4 View = lookAt(zoom * vec3(cos(verticalAngle) * sin(horizontalAngle), sin(verticalAngle), cos(verticalAngle) * cos(horizontalAngle)), vec3 (0, 0, 0), vec3(0, 1, 0));
 
         if (currentRotation.rotating) {
+            currentRotation.angle = fmin(currentRotation.angle + deltaTime * 8.0f, (float) M_PI / 2);
+
             for (unsigned int i = 0; i < currentRotation.cubes.size(); i++) {
                 cubeRotation info = currentRotation.cubes[i];
                 mat4 newRotation = rotate(currentRotation.direction * currentRotation.angle, currentRotation.side);
@@ -264,12 +264,31 @@ int main() {
                 cube->Translate = vec3(newRotation * vec4(info.initialVector, 0.0f));
                 cube->Rotate = newRotation * info.initialRot;
             }
-            currentRotation.angle = fmin(currentRotation.angle + deltaTime * 2.0f, (float) M_PI / 2);
+
             if (currentRotation.angle == (float) M_PI / 2) {
+                for (unsigned int i = 0; i < currentRotation.cubes.size(); i++) {
+                    Object* cube = currentRotation.cubes[i].cube;
+                    cube->Translate = vec3 (round(cube->Translate[0]), round(cube->Translate[1]), round(cube->Translate[2]));
+                }
+
                 currentRotation.rotating = false;
             }
-        }
+        } else {
+            vec3 options[] = {
+                vec3(1, 0, 0),
+                vec3(-1, 0, 0),
+                vec3(0, 1, 0),
+                vec3(0, -1, 0),
+                vec3(0, 0, 1),
+                vec3(0, 0, -1),
+            };
 
+            int direction = -1;
+            if ((rand() % 2) > 0.5f) {
+                direction = 1;
+            }
+            turn(options[rand() % 6], direction);
+        }
         for (unsigned int i = 0; i < cubes.size(); i++) {
             cubes[i].Draw(programID, Projection, View, vertices.size());
         };
