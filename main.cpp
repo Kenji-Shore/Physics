@@ -214,6 +214,13 @@ string shortcuts[6] {
     "y",
 };
 
+int biastopbottom[4] {
+    0,
+    6,
+    4,
+    2,
+};
+
 string bias[4] {
     "b",
     "o",
@@ -314,9 +321,9 @@ void Turn(string face, int direction) {
 
 //1 is counterclockwise, -1 is clockwise
 bool solve() {
+    int *colors = Read("w");
     switch (state) {
         case 0: {//White cross
-            int *colors = Read("y");
             int count = 0;
 
             for (int i = 0; i < 8; i++) {
@@ -437,6 +444,168 @@ bool solve() {
 
             break;
         } case 1: {
+            int count = 0;
+            Read("y");
+
+            for (int i = 0; i < 9; i++) {
+                if (dictionary[colors[i]] == "w") {
+                    count++;
+                    int next = i - 1;
+                    int before = i + 1;
+
+                    if (before > 7) {
+                        before = 0;
+                    }
+
+                    string face1 = topbottom[before];
+                    Read(face1);
+                    string col1 = dictionary[colors[2]];
+
+                    string face2 = topbottom[next];
+                    Read(face2);
+                    string col2 = dictionary[colors[4]];
+
+                    if ((col2 == face1) && (col1 == face2)) {
+                        Turn(face2, 1);
+                        Turn("y", 1);
+                        Turn("y", 1);
+                        Turn(face2, -1);
+                        Turn("y", -1);
+                        Turn(face2, 1);
+                        Turn("y", 1);
+                        Turn(face2, -1);
+                    }
+
+                }
+            }
+
+            if (count == 0) {
+                for (int i = 0; i < 4; i++) {
+                    Read(bias[i]);
+                    if (dictionary[colors[2]] == "w") {
+                        count++;
+                        int next = i + 1;
+                        if (next > 3) {
+                            next = 0;
+                        }
+
+                        string face = bias[next];
+                        Read(face);
+
+                        if (face == dictionary[colors[4]]) {
+                            Turn(bias[i], -1);
+                            Turn("y", -1);
+                            Turn(bias[i], 1);
+                        }
+                    }
+                }
+
+                if (count == 0) {
+                    //urrentRotation.speed = 8.0f;
+                    for (int i = 0; i < 4; i++) {
+                        Read(bias[i]);
+                        if (dictionary[colors[4]] == "w") {
+                            count++;
+                            int before = i - 1;
+                            if (before < 0) {
+                                before = 3;
+                            }
+
+                            string face = bias[before];
+                            Read(face);
+
+                            if (face == dictionary[colors[2]]) {
+                                Turn(bias[i], 1);
+                                Turn("y", 1);
+                                Turn(bias[i], -1);
+                            }
+                        }
+                    }
+
+                    if (count == 0) {
+                        Read("w");
+                        bool complete = true;
+                        for (int i = 0; i < 9; i++) {
+                            if (dictionary[colors[i]] != "w") {
+                                complete = false;
+                                break;
+                            }
+                        }
+
+                        if (!complete) {
+                            for (int i = 0; i < 4; i++) {
+                                int back = biastopbottom[i] - 1;
+                                if (back < 0) {
+                                    back = 7;
+                                }
+                                Read("w");
+                                if (dictionary[colors[back]] != "w") {
+                                    Turn(bias[i], -1);
+                                    Turn("y", 1);
+                                    Turn(bias[i], 1);
+                                }
+                            }
+                        } else {
+                            state = 2;
+                        }
+                    }
+                }
+            }
+
+            if (stack.size() == 0) {
+                Turn("y", 1);
+            }
+
+            break;
+        } case 2: {
+            int count = 0;
+
+            for (int i = 0; i < 3; i++) {
+                Read(bias[i]);
+                if (dictionary[colors[3]] == bias[i]) {
+                    count++;
+                    Read("y");
+                    string col = dictionary[colors[biastopbottom[i]]];
+                    int next = i + 1;
+                    int before = i - 1;
+                    if (next > 3) {
+                        next = 0;
+                    }
+                    if (before < 0) {
+                        before = 3;
+                    }
+
+                    if (col == bias[next]) {
+                        Turn("y", 1);
+                        Turn(bias[next], 1);
+                        Turn("y", -1);
+                        Turn(bias[next], -1);
+                        Turn("y", -1);
+                        Turn(bias[i], -1);
+                        Turn("y", 1);
+                        Turn(bias[i], 1);
+                    } else if (col == bias[before]) {
+                        Turn("y", -1);
+                        Turn(bias[before], -1);
+                        Turn("y", 1);
+                        Turn(bias[before], 1);
+                        Turn("y", 1);
+                        Turn(bias[i], 1);
+                        Turn("y", -1);
+                        Turn(bias[i], -1);
+                    }
+                }
+            }
+
+            if (count == 0) {
+                state = 3;
+            }
+
+            if (stack.size() == 0) {
+                Turn("y", 1);
+            }
+            break;
+        } case 3: {
             break;
         }
     }
@@ -650,7 +819,7 @@ int main() {
                 scrambleCount += 1;
 
                 if (scrambleCount > 20) {
-                    currentRotation.speed = 12.0f;
+                    currentRotation.speed = 4.0f;
                     scrambleCount = 0;
                     solving = true;
                 }
