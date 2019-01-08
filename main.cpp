@@ -21,6 +21,9 @@
 using namespace std;
 using namespace glm;
 
+vec3 lightDirection = vec3(0.7, -1, 0.7);
+vec3 ambient = vec3(0.1, 0.1, 0.1);
+
 vec3 colors[] = {
     vec3 (0, 0, 0), //0, black
     vec3 (1, 0, 0), //1, red
@@ -154,7 +157,7 @@ struct rotation {
     int direction;
     float angle;
     bool rotating = false;
-    float speed = 20.0f;
+    float speed = 40.0f;
 };
 
 rotation currentRotation;
@@ -555,7 +558,7 @@ bool solve() {
                                 }
                             }
                         } else {
-                            state = 3;
+                            state = 2;
                         }
                     }
                 }
@@ -567,30 +570,22 @@ bool solve() {
 
             break;
         } case 2: {
-            currentRotation.speed = 4.0f;
             int count = 0;
 
             for (int i = 0; i < 4; i++) {
                 Read(bias[i]);
                 string original = dictionary[colors[3]];
                 for (int j = 0; j < 4; j++) {
-                    //cout<<"new"<<endl;
-                    //cout<<original<<endl;
-                    //cout<<bias[j]<<endl;
                     if (original == bias[j]) {
-                        //cout<<"hi"<<endl;
-                        //cout<<original<<endl;
                         Read("y");
                         string col = dictionary[colors[biastopbottom[i]]];
                         if (col != "y") {
-                            //cout<<"new"<<endl;
-                            //cout<<dictionary[colors[3]]<<endl;
-                            //cout<<col<<endl;
                             count++;
                         }
                     }
                 }
 
+                Read(bias[i]);
                 if (dictionary[colors[3]] == bias[i]) {
                     Read("y");
                     string col = dictionary[colors[biastopbottom[i]]];
@@ -626,7 +621,43 @@ bool solve() {
             }
 
             if (count == 0) {
-                state = 3;
+                for (int i = 0; i < 4; i++) {
+                    Read(bias[i]);
+                    int next = i + 1;
+                    int before = i - 1;
+                    if (next > 3) {
+                        next = 0;
+                    }
+                    if (before < 0) {
+                        before = 3;
+                    }
+
+                    if (dictionary[colors[5]] != bias[i]) {
+                        count++;
+                        Turn("y", -1);
+                        Turn(bias[before], -1);
+                        Turn("y", 1);
+                        Turn(bias[before], 1);
+                        Turn("y", 1);
+                        Turn(bias[i], 1);
+                        Turn("y", -1);
+                        Turn(bias[i], -1);
+                    } else if (dictionary[colors[1]] != bias[i]) {
+                        count++;
+                        Turn("y", 1);
+                        Turn(bias[next], 1);
+                        Turn("y", -1);
+                        Turn(bias[next], -1);
+                        Turn("y", -1);
+                        Turn(bias[i], -1);
+                        Turn("y", 1);
+                        Turn(bias[i], 1);
+                    }
+                }
+
+                if (count == 0) {
+                    state = 3;
+                }
             }
 
             if (stack.size() == 0) {
@@ -634,6 +665,71 @@ bool solve() {
             }
             break;
         } case 3: {
+            int count = 0;
+            Read("y");
+
+            int num = 0;
+            bool active[4] = {false, false, false, false};
+            string face = "";
+            string stage;
+
+            for (int i = 0; i < 7; i++) {
+                if ((i % 2 == 0) && (dictionary[colors[i]] == "y")) {
+                    active[i / 2] = true;
+                    num++;
+                }
+            }
+
+            if (num < 2) { //dot
+                face = topbottom[0];
+            } else if (num == 4) { //cross
+                state = 4;
+            } else {
+                if (active[0] &&  active[2]) { //line
+                    face = topbottom[2];
+                } else if (active[1] &&  active[3]) { //line
+                    face = topbottom[0];
+                } else { //L shape
+                    for (int i = 0; i < 4; i++) {
+                        int next = i + 1;
+                        int before = i - 1;
+
+                        if (next > 3) {
+                            next = 0;
+                        }
+                        if (before < 0) {
+                            before = 3;
+                        }
+
+                        if (active[i] && active[before]) {
+                            face = topbottom[2 * next];
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (face != "") {
+                for (int i = 0; i < 4; i++) {
+                    if (face == bias[i]) {
+                        int next = i - 1;
+                        if (next < 0) {
+                            next = 3;
+                        }
+
+                        Turn(face, -1);
+                        Turn(bias[next], -1);
+                        Turn("y", -1);
+                        Turn(bias[next], 1);
+                        Turn("y", 1);
+                        Turn(face, 1);
+                        break;
+                    }
+                }
+            }
+
+            break;
+        } case 4: {
             break;
         }
     }
@@ -793,9 +889,6 @@ int main() {
 
         GLuint LightingID = glGetUniformLocation(programID, "LightDirection");
         GLuint AmbientID = glGetUniformLocation(programID, "Ambient");
-
-        vec3 lightDirection = vec3(0.7, -1, 0.7);
-        vec3 ambient = vec3(0.1, 0.1, 0.1);
 
         glUniform3fv(LightingID, 1, &lightDirection[0]);
         glUniform3fv(AmbientID, 1, &ambient[0]);

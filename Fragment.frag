@@ -12,5 +12,6 @@ uniform vec3 LightDirection;
 
 void main() {
     vec3 rgb = texture(textureSampler, UV).rgb;
-    color = mix(Colors[0] * rgb[0] + Colors[1] * rgb[1] + Colors[2] * rgb[2], Ambient, dot(vec3(ModelRotation * vec4(normal, 0)), LightDirection));
+    vec3 raw = Colors[0] * rgb[0] + Colors[1] * rgb[1] + Colors[2] * rgb[2];
+    color = mix(raw, mix(raw, Ambient, 0.7), dot(vec3(ModelRotation * vec4(normal, 0)), LightDirection));
 }
