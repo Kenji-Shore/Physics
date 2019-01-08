@@ -333,7 +333,6 @@ bool solve() {
                     Read(face);
 
                     if (dictionary[colors[7]] != face) {
-                        state = 1;
                         Turn(face, 1);
                         Turn(face, 1);
                     }
@@ -501,7 +500,6 @@ bool solve() {
                 }
 
                 if (count == 0) {
-                    //urrentRotation.speed = 8.0f;
                     for (int i = 0; i < 4; i++) {
                         Read(bias[i]);
                         if (dictionary[colors[4]] == "w") {
@@ -558,12 +556,31 @@ bool solve() {
 
             break;
         } case 2: {
+            currentRotation.speed = 4.0f;
             int count = 0;
 
             for (int i = 0; i < 3; i++) {
                 Read(bias[i]);
+                string original = dictionary[colors[3]];
+                for (int j = 0; j < 3; j++) {
+                    cout<<"new"<<endl;
+                    cout<<original<<endl;
+                    cout<<bias[j]<<endl;
+                    if (original == bias[j]) {
+                        cout<<"hi"<<endl;
+                        //cout<<original<<endl;
+                        Read("y");
+                        string col = dictionary[colors[biastopbottom[i]]];
+                        if (col != "y") {
+                            //cout<<"new"<<endl;
+                            //cout<<dictionary[colors[3]]<<endl;
+                            //cout<<col<<endl;
+                            count++;
+                        }
+                    }
+                }
+
                 if (dictionary[colors[3]] == bias[i]) {
-                    count++;
                     Read("y");
                     string col = dictionary[colors[biastopbottom[i]]];
                     int next = i + 1;
@@ -819,7 +836,7 @@ int main() {
                 scrambleCount += 1;
 
                 if (scrambleCount > 20) {
-                    currentRotation.speed = 4.0f;
+                    currentRotation.speed = 14.0f;
                     scrambleCount = 0;
                     solving = true;
                 }
