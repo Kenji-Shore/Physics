@@ -390,8 +390,7 @@ bool solve() {
 
                     }
 
-                    if (count == -1) {
-                        currentRotation.speed = 0.4f;
+                    if (count == 0) {
 
                         for (int i = 0; i < 4; i++) {
                             Read(bias[i]);
@@ -431,7 +430,8 @@ bool solve() {
                         }
                     }
                 }
-            } else if (stack.size() == 0) {
+            }
+            if (stack.size() == 0) {
                 Turn("y", 1);
             }
 
@@ -650,7 +650,7 @@ int main() {
                 scrambleCount += 1;
 
                 if (scrambleCount > 20) {
-                    currentRotation.speed = 4.0f;
+                    currentRotation.speed = 12.0f;
                     scrambleCount = 0;
                     solving = true;
                 }
