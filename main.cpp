@@ -16,7 +16,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <vector>
-#include <map>
 #include "Object.h"
 
 using namespace std;
@@ -27,7 +26,7 @@ vec3 colors[] = {
     vec3 (1, 0, 0), //1, red
     vec3 (0, 0, 1), //2, blue
     vec3 (0, 1, 0), //3, green
-    vec3 (1, 0.55, 0), //4, orange
+    vec3 (0.8, 0.4, 0), //4, orange
     vec3 (1, 1, 0), //5, yellow
     vec3 (1, 1, 1), //6, white
 };
@@ -432,7 +431,18 @@ bool solve() {
                         }
 
                         if (count == 0) {
-                            state = 1;
+                            Read("w");
+                            bool ready = true;
+                            for (int i = 0; i < 7; i++) {
+                                if ((i % 2 == 0) && (dictionary[colors[i]] != "w")) {
+                                    ready = false;
+                                    break;
+                                }
+                            }
+
+                            if (ready) {
+                                state = 1;
+                            }
                         }
                     }
                 }
@@ -444,9 +454,10 @@ bool solve() {
             break;
         } case 1: {
             int count = 0;
-            Read("y");
 
-            for (int i = 0; i < 9; i++) {
+            for (int i = 0; i < 8; i++) {
+                Read("y");
+
                 if (dictionary[colors[i]] == "w") {
                     count++;
                     int next = i - 1;
@@ -460,7 +471,7 @@ bool solve() {
                     Read(face1);
                     string col1 = dictionary[colors[2]];
 
-                    string face2 = topbottom[next];
+                    string face2 = topbottom[next];;
                     Read(face2);
                     string col2 = dictionary[colors[4]];
 
@@ -544,7 +555,7 @@ bool solve() {
                                 }
                             }
                         } else {
-                            state = 2;
+                            state = 3;
                         }
                     }
                 }
@@ -559,15 +570,15 @@ bool solve() {
             currentRotation.speed = 4.0f;
             int count = 0;
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 4; i++) {
                 Read(bias[i]);
                 string original = dictionary[colors[3]];
-                for (int j = 0; j < 3; j++) {
-                    cout<<"new"<<endl;
-                    cout<<original<<endl;
-                    cout<<bias[j]<<endl;
+                for (int j = 0; j < 4; j++) {
+                    //cout<<"new"<<endl;
+                    //cout<<original<<endl;
+                    //cout<<bias[j]<<endl;
                     if (original == bias[j]) {
-                        cout<<"hi"<<endl;
+                        //cout<<"hi"<<endl;
                         //cout<<original<<endl;
                         Read("y");
                         string col = dictionary[colors[biastopbottom[i]]];
