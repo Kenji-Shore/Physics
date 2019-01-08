@@ -42,7 +42,7 @@ vec3 faceOrder[6][9] = {
         vec3 (2, -2,  2),
         vec3 (2,  0,  2),
         vec3 (2,  2,  2),
-        vec3 (2,  0,  2),
+        vec3 (2,  2,  0),
         vec3 (2,  0,  0),
     },
     {
@@ -53,7 +53,7 @@ vec3 faceOrder[6][9] = {
         vec3 (-2, -2, -2),
         vec3 (-2,  0, -2),
         vec3 (-2,  2, -2),
-        vec3 (-2,  0, -2),
+        vec3 (-2,  2,  0),
         vec3 (-2,  0,  0),
     },
     {
@@ -64,7 +64,7 @@ vec3 faceOrder[6][9] = {
         vec3 (-2, -2,  2),
         vec3 (-2,  0,  2),
         vec3 (-2,  2,  2),
-        vec3 (-2,  0,  2),
+        vec3 (0,  2,  2),
         vec3 (0,  0,  2),
     },
     {
@@ -75,7 +75,7 @@ vec3 faceOrder[6][9] = {
         vec3 (2, -2,  -2),
         vec3 (2,  0,  -2),
         vec3 (2,  2,  -2),
-        vec3 (2,  0,  -2),
+        vec3 (0,  2,  -2),
         vec3 (0,  0,  -2),
     },
     {
@@ -155,7 +155,7 @@ struct rotation {
     int direction;
     float angle;
     bool rotating = false;
-    float speed = 8.0f;
+    float speed = 20.0f;
 };
 
 rotation currentRotation;
@@ -211,7 +211,14 @@ string shortcuts[6] {
     "g",
     "b",
     "w",
-    "y"
+    "y",
+};
+
+string bias[4] {
+    "b",
+    "o",
+    "g",
+    "r",
 };
 
 void turn (vec3 side, int direction) {
@@ -254,12 +261,13 @@ int* read (vec3 side) {
     for (unsigned int i = 0; i < cubes.size(); i++) {
         Object *cube = &cubes[i];
         vec3 sign = cube->Translate * side;
+
         if ((sign[0] > 0) || (sign[1] > 0) || (sign[2] > 0)) {
             int* faces;
             vec3 directions[3] = {
                 vec3 (0, 0, 1),
                 vec3 (0, 1, 0),
-                vec3 (1, 0, 0),
+                vec3 (-1, 0, 0),
             };
 
             faces = arrangement[cube->ID].faces;
@@ -289,8 +297,7 @@ int* Read (string side) {
     }
 
     cout<<"Couldn't find side"<<endl;
-    cout<<side<<endl;
-    int dummy;
+    static int dummy;
     return &dummy;
 }
 
@@ -305,11 +312,49 @@ void Turn(string face, int direction) {
     stack.push_back({.face = face, .direction = direction});
 }
 
+//1 is counterclockwise, -1 is clockwise
 bool solve() {
     switch (state) {
         case 0: {//White cross
             int *colors = Read("y");
             int count = 0;
+
+            for (unsigned int i = 0; i < 8; i++) {
+                Read("w");
+                if ((dictionary[colors[i]] == "w") && (i % 2 == 0)) {
+                    string face = topbottom[i];
+                    Read(face);
+
+                    if (dictionary[colors[7]] != face) {
+                        cout<<"No"<<endl;
+                        cout<<colors[7]<<endl;
+                        cout<<dictionary[colors[7]]<<endl;
+                        cout<<face<<endl;
+                        for (unsigned int j = 0; j < 9; j++) {
+                            cout<<dictionary[colors[j]]<<endl;
+                        }
+                        cout<<"RBOOOOOOOO"<<endl;
+                        Read("r");
+                        for (unsigned int j = 0; j < 9; j++) {
+                            cout<<dictionary[colors[j]]<<endl;
+                        }
+                        cout<<"GBOOOOOOOO"<<endl;
+                        read(vec3(0, 0, 1));
+                        for (unsigned int j = 0; j < 9; j++) {
+                            cout<<dictionary[colors[j]]<<endl;
+                        }
+                        //cout<<"WBOOOOOOOO"<<endl;
+                        //Read("w");
+                        //for (unsigned int j = 0; j < 9; j++) {
+                        //    cout<<dictionary[colors[j]]<<endl;
+                        //}
+                        state = 1;
+                        //Turn(face, 1);
+                        //Turn(face, 1);
+                    }
+                }
+            }
+
             for (unsigned int i = 0; i < 9; i++) {
                 Read("y");
                 if ((dictionary[colors[i]] == "w") && (i % 2 == 0)) {
@@ -323,8 +368,91 @@ bool solve() {
                 }
             }
 
-            if (count == 0) {
-                state = 1;
+            if (count == -1) {
+                for (unsigned int i = 0; i < 4; i++) {
+                    Read(bias[i]);
+                    if (dictionary[colors[5]] == "w") {
+                        count++;
+                        int check = i - 1;
+                        if (check < 0) {
+                            check = 3;
+                        }
+
+                        Read(bias[check]);
+                        if (dictionary[colors[1]] == bias[check]) {
+                            Turn(bias[check], 1); //Already on the right face
+                        } else {
+                            Turn(bias[check], -1); //Bring to bottom to be relocated
+                            Turn("y", 1);
+                            Turn(bias[check], 1);
+                        }
+                    }
+
+                }
+
+                if (count == 0) {
+                    for (unsigned int i = 4; i > 0; i--) {
+                        Read(bias[i - 1]);
+                        if (dictionary[colors[1]] == "w") {
+                            count++;
+                            int check = i;
+                            if (check > 3) {
+                                check = 0;
+                            }
+
+                            Read(bias[check]);
+                            if (dictionary[colors[5]] == bias[check]) {
+                                Turn(bias[check], -1); //Already on the right face
+                            } else {
+                                Turn(bias[check], 1); //Bring to bottom to be relocated
+                                Turn("y", 1);
+                                Turn(bias[check], -1);
+                            }
+                        }
+
+                    }
+
+                    if (count == 0) {
+                        currentRotation.speed = 0.4f;
+
+                        for (unsigned int i = 0; i < 4; i++) {
+                            Read(bias[i]);
+                            if (dictionary[colors[3]] == "w") {
+                                string color;
+                                for (unsigned int j = 0; j < 9; j++) {
+                                    if (topbottom[j] == bias[i]) {
+                                        Read("y");
+                                        color = dictionary[colors[j]];
+                                    }
+                                }
+
+                                if (color == bias[i]) {
+                                    int check = i - 1;
+                                    if (check < 0) {
+                                        check = 3;
+                                    }
+
+                                    Turn(bias[i], 1);
+                                    Turn(bias[check], 1);
+                                    Turn("y", 1);
+                                    Turn(bias[check], -1);
+                                    Turn(bias[i], 1);
+                                    Turn(bias[i], 1);
+                                } else {
+                                    count++;
+                                }
+                            } else if (dictionary[colors[7]] == "w") {
+                                count++;
+                                Turn(bias[i], 1);
+                                Turn(bias[i], 1);
+                            }
+                        }
+
+                        if (count == 0) {
+                            state = 1;
+                        }
+                    }
+                }
             } else if (stack.size() == 0) {
                 Turn("y", 1);
             }
@@ -543,7 +671,7 @@ int main() {
                 turn(side, direction);
                 scrambleCount += 1;
 
-                if (scrambleCount > 10) {
+                if (scrambleCount > 20) {
                     currentRotation.speed = 4.0f;
                     scrambleCount = 0;
                     solving = true;
