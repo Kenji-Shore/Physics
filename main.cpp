@@ -319,43 +319,21 @@ bool solve() {
             int *colors = Read("y");
             int count = 0;
 
-            for (unsigned int i = 0; i < 8; i++) {
+            for (int i = 0; i < 8; i++) {
                 Read("w");
                 if ((dictionary[colors[i]] == "w") && (i % 2 == 0)) {
                     string face = topbottom[i];
                     Read(face);
 
                     if (dictionary[colors[7]] != face) {
-                        cout<<"No"<<endl;
-                        cout<<colors[7]<<endl;
-                        cout<<dictionary[colors[7]]<<endl;
-                        cout<<face<<endl;
-                        for (unsigned int j = 0; j < 9; j++) {
-                            cout<<dictionary[colors[j]]<<endl;
-                        }
-                        cout<<"RBOOOOOOOO"<<endl;
-                        Read("r");
-                        for (unsigned int j = 0; j < 9; j++) {
-                            cout<<dictionary[colors[j]]<<endl;
-                        }
-                        cout<<"GBOOOOOOOO"<<endl;
-                        read(vec3(0, 0, 1));
-                        for (unsigned int j = 0; j < 9; j++) {
-                            cout<<dictionary[colors[j]]<<endl;
-                        }
-                        //cout<<"WBOOOOOOOO"<<endl;
-                        //Read("w");
-                        //for (unsigned int j = 0; j < 9; j++) {
-                        //    cout<<dictionary[colors[j]]<<endl;
-                        //}
                         state = 1;
-                        //Turn(face, 1);
-                        //Turn(face, 1);
+                        Turn(face, 1);
+                        Turn(face, 1);
                     }
                 }
             }
 
-            for (unsigned int i = 0; i < 9; i++) {
+            for (int i = 0; i < 9; i++) {
                 Read("y");
                 if ((dictionary[colors[i]] == "w") && (i % 2 == 0)) {
                     count++;
@@ -368,8 +346,8 @@ bool solve() {
                 }
             }
 
-            if (count == -1) {
-                for (unsigned int i = 0; i < 4; i++) {
+            if (count == 0) {
+                for (int i = 0; i < 4; i++) {
                     Read(bias[i]);
                     if (dictionary[colors[5]] == "w") {
                         count++;
@@ -383,7 +361,7 @@ bool solve() {
                             Turn(bias[check], 1); //Already on the right face
                         } else {
                             Turn(bias[check], -1); //Bring to bottom to be relocated
-                            Turn("y", 1);
+                            Turn("y", -1);
                             Turn(bias[check], 1);
                         }
                     }
@@ -391,11 +369,11 @@ bool solve() {
                 }
 
                 if (count == 0) {
-                    for (unsigned int i = 4; i > 0; i--) {
-                        Read(bias[i - 1]);
+                    for (int i = 3; i >= 0; i--) {
+                        Read(bias[i]);
                         if (dictionary[colors[1]] == "w") {
                             count++;
-                            int check = i;
+                            int check = i + 1;
                             if (check > 3) {
                                 check = 0;
                             }
@@ -412,14 +390,14 @@ bool solve() {
 
                     }
 
-                    if (count == 0) {
+                    if (count == -1) {
                         currentRotation.speed = 0.4f;
 
-                        for (unsigned int i = 0; i < 4; i++) {
+                        for (int i = 0; i < 4; i++) {
                             Read(bias[i]);
                             if (dictionary[colors[3]] == "w") {
                                 string color;
-                                for (unsigned int j = 0; j < 9; j++) {
+                                for (int j = 0; j < 9; j++) {
                                     if (topbottom[j] == bias[i]) {
                                         Read("y");
                                         color = dictionary[colors[j]];
@@ -432,10 +410,10 @@ bool solve() {
                                         check = 3;
                                     }
 
-                                    Turn(bias[i], 1);
-                                    Turn(bias[check], 1);
-                                    Turn("y", 1);
+                                    Turn(bias[i], -1);
                                     Turn(bias[check], -1);
+                                    Turn("y", -1);
+                                    Turn(bias[check], 1);
                                     Turn(bias[i], 1);
                                     Turn(bias[i], 1);
                                 } else {
