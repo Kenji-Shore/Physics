@@ -32,14 +32,6 @@ vec3 colors[] = {
     vec3 (1, 1, 1), //6, white
 };
 
-vec3 sideOrder[6] = {
-    vec3(1, 0, 0),
-    vec3(-1, 0, 0),
-    vec3(0, 0, 1),
-    vec3(0, 0, -1),
-    vec3(0, 1, 0),
-    vec3(0, -1, 0),
-};
 
 vec3 faceOrder[6][9] = {
     {
@@ -116,13 +108,6 @@ struct cubeData {
     mat4 rotation;
 };
 
-//negative x: 4 orange
-//positive x: 1 red
-//negative z: 2 blue
-//positive z: 3 green
-//negative y: 5 yellow
-//positive y: 6 white
-
 cubeData arrangement[26] = {
     {.position = vec3 (-2,-2,-2), .faces = {5, 4, 2}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
     {.position = vec3 (-2,-2, 0), .faces = {5, 4, 0}, .rotation = rotate((float) -M_PI / 2, vec3(0, 1, 0)) * rotate((float) M_PI / 2, vec3(1, 0, 0))},
@@ -182,7 +167,52 @@ struct moves {
     int direction;
 };
 
-vector <moves> solution;
+//positive x: 1 red
+//negative x: 4 orange
+//positive z: 3 green
+//negative z: 2 blue
+//positive y: 6 white
+//negative y: 5 yellow
+
+vec3 sideOrder[6] = {
+    vec3(1, 0, 0),
+    vec3(-1, 0, 0),
+    vec3(0, 0, 1),
+    vec3(0, 0, -1),
+    vec3(0, 1, 0),
+    vec3(0, -1, 0),
+};
+
+string topbottom[9] {
+    "b",
+    "",
+    "r",
+    "",
+    "g",
+    "",
+    "o",
+    "",
+    "",
+};
+
+string dictionary[7] {
+    "",
+    "r",
+    "b",
+    "g",
+    "o",
+    "y",
+    "w",
+};
+
+string shortcuts[6] {
+    "r",
+    "o",
+    "g",
+    "b",
+    "w",
+    "y"
+};
 
 void turn (vec3 side, int direction) {
     currentRotation.cubes.clear();
@@ -201,7 +231,16 @@ void turn (vec3 side, int direction) {
     currentRotation.rotating = true;
 }
 
-void readSide (vec3 side) {
+void TurnRaw (string side, int direction) {
+    for (unsigned int i = 0; i < 6; i++) {
+        if (shortcuts[i] == side) {
+            turn(sideOrder[i], direction);
+            break;
+        }
+    }
+};
+
+int* read (vec3 side) {
     int num;
 
     for (unsigned int i = 0; i < 6; i++) {
@@ -210,7 +249,7 @@ void readSide (vec3 side) {
         }
     }
 
-    int output[9];
+    static int output[9];
 
     for (unsigned int i = 0; i < cubes.size(); i++) {
         Object *cube = &cubes[i];
@@ -239,9 +278,64 @@ void readSide (vec3 side) {
         }
     }
 
-    for (unsigned int i = 0; i < 9; i++) {
-        cout<<output[i]<<endl;
+    return output;
+}
+
+int* Read (string side) {
+    for (unsigned int i = 0; i < 6; i++) {
+        if (shortcuts[i] == side) {
+            return read(sideOrder[i]);
+        }
     }
+
+    cout<<"Couldn't find side"<<endl;
+    cout<<side<<endl;
+    int dummy;
+    return &dummy;
+}
+
+int state = 0;
+struct operation {
+    string face;
+    int direction;
+};
+vector<operation> stack {};
+
+void Turn(string face, int direction) {
+    stack.push_back({.face = face, .direction = direction});
+}
+
+bool solve() {
+    switch (state) {
+        case 0: {//White cross
+            int *colors = Read("y");
+            int count = 0;
+            for (unsigned int i = 0; i < 9; i++) {
+                Read("y");
+                if ((dictionary[colors[i]] == "w") && (i % 2 == 0)) {
+                    count++;
+                    string face = topbottom[i];
+                    Read(face);
+                    if (dictionary[colors[3]] == face) { //If the bottom white piece hits the matching color face
+                        Turn(face, 1);
+                        Turn(face, 1);
+                    }
+                }
+            }
+
+            if (count == 0) {
+                state = 1;
+            } else if (stack.size() == 0) {
+                Turn("y", 1);
+            }
+
+            break;
+        } case 1: {
+            break;
+        }
+    }
+
+    return false;
 }
 
 int main() {
@@ -345,8 +439,6 @@ int main() {
 
     int lastTime = SDL_GetTicks();
 
-    turn(vec3(1, 0, 0), -1);
-
     while (!quit) {
         float deltaTime = (float) (SDL_GetTicks() - lastTime) / 1000.0f;
         lastTime = SDL_GetTicks();
@@ -447,24 +539,22 @@ int main() {
                 }
 
                 vec3 side = options[rand() % 6];
-                readSide(vec3(0, 1, 0));
-                solving = true;
-                //turn(side, direction);
-                //solution.push_back({.side = side, .direction = direction});
-                //scrambleCount += 1;
 
-                if (scrambleCount > 15) {
+                turn(side, direction);
+                scrambleCount += 1;
+
+                if (scrambleCount > 10) {
                     currentRotation.speed = 4.0f;
                     scrambleCount = 0;
                     solving = true;
                 }
             } else {
-                //turn(solution[solution.size() - 1].side, -solution[solution.size() - 1].direction);
-                //solution.erase(solution.end() - 1);
-                //if (solution.size() == 0) {
-                //    currentRotation.speed = 12.0f;
-                //    solving = false;
-                //}
+                if (stack.size() > 0) {
+                    TurnRaw(stack[0].face, stack[0].direction);
+                    stack.erase(stack.begin());
+                } else {
+                    solve();
+                }
             }
         }
         for (unsigned int i = 0; i < cubes.size(); i++) {
