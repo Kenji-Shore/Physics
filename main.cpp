@@ -24,6 +24,9 @@ using namespace glm;
 vec3 lightDirection = vec3(0.7, -1, 0.7);
 vec3 ambient = vec3(0.1, 0.1, 0.1);
 
+float scrambleSpeed = 20.0f;
+float solveSpeed = 12.0f;
+
 vec3 colors[] = {
     vec3 (0, 0, 0), //0, black
     vec3 (1, 0, 0), //1, red
@@ -157,7 +160,7 @@ struct rotation {
     int direction;
     float angle;
     bool rotating = false;
-    float speed = 20.0f;
+    float speed = scrambleSpeed;
 };
 
 rotation currentRotation;
@@ -912,7 +915,6 @@ int main() {
     SDL_GLContext glContext;
     SDL_Event sdlEvent;
 
-    float i = 0;
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cout << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
         return -1;
@@ -1113,7 +1115,7 @@ int main() {
                     scrambleCount += 1;
 
                     if (scrambleCount > 20) {
-                        currentRotation.speed = 12.0f;
+                        currentRotation.speed = solveSpeed;
                         scrambleCount = 0;
                         solving = true;
 
@@ -1128,7 +1130,7 @@ int main() {
                         bool solved = solve();
                         if (solved) {
                             solving = false;
-                            currentRotation.speed = 20.0f;
+                            currentRotation.speed = scrambleSpeed;
                             stack.clear();
 
                             delayTick = SDL_GetTicks();
@@ -1148,7 +1150,6 @@ int main() {
         glDisableVertexAttribArray(2);
 
         SDL_GL_SwapWindow(window);
-        i += 0.005;
     }
 
     SDL_DestroyWindow(window);
