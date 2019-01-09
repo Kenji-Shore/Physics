@@ -157,7 +157,7 @@ struct rotation {
     int direction;
     float angle;
     bool rotating = false;
-    float speed = 40.0f;
+    float speed = 20.0f;
 };
 
 rotation currentRotation;
@@ -325,6 +325,8 @@ int lastCorner = 0;
 //1 is counterclockwise, -1 is clockwise
 bool solve() {
     int *colors = Read("w");
+    bool solved = false;
+
     switch (state) {
         case 0: {//White cross
             int count = 0;
@@ -889,7 +891,8 @@ bool solve() {
             }
 
             if (correct) {
-                cout<<"solved"<<endl;
+                solved = true;
+                state = 0;
             } else {
                 Turn("y", 1);
             }
@@ -897,8 +900,11 @@ bool solve() {
         }
     }
 
-    return false;
+    return solved;
 }
+
+double delayTick = 0;
+float delayDuration = 0;
 
 int main() {
     bool quit = false;
@@ -915,7 +921,7 @@ int main() {
     int windowX = 800;
     int windowY = 600;
 
-    window = SDL_CreateWindow("Rubik's Cube \"Solver\"", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowX, windowY, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Rubik's Cube Solver", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowX, windowY, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (window == NULL) {
         std::cout << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         return -1;
@@ -1062,60 +1068,77 @@ int main() {
         //Camera matrix
         glm::mat4 View = lookAt(zoom * vec3(cos(verticalAngle) * sin(horizontalAngle), sin(verticalAngle), cos(verticalAngle) * cos(horizontalAngle)), vec3 (0, 0, 0), vec3(0, 1, 0));
 
-        if (currentRotation.rotating) {
-            currentRotation.angle = fmin(currentRotation.angle + deltaTime * currentRotation.speed, (float) M_PI / 2);
+        double currentTick = SDL_GetTicks();
+        if (float(currentTick - delayTick) / 1000.0f > delayDuration) {
+            if (currentRotation.rotating) {
+                currentRotation.angle = fmin(currentRotation.angle + deltaTime * currentRotation.speed,
+                                             (float) M_PI / 2);
 
-            for (unsigned int i = 0; i < currentRotation.cubes.size(); i++) {
-                cubeRotation info = currentRotation.cubes[i];
-                mat4 newRotation = rotate(currentRotation.direction * currentRotation.angle, currentRotation.side);
-                Object* cube = info.cube;
-                cube->Translate = vec3(newRotation * vec4(info.initialVector, 0.0f));
-                cube->Rotate = newRotation * info.initialRot;
-            }
-
-            if (currentRotation.angle == (float) M_PI / 2) {
                 for (unsigned int i = 0; i < currentRotation.cubes.size(); i++) {
-                    Object* cube = currentRotation.cubes[i].cube;
-                    cube->Translate = vec3 (round(cube->Translate[0]), round(cube->Translate[1]), round(cube->Translate[2]));
+                    cubeRotation info = currentRotation.cubes[i];
+                    mat4 newRotation = rotate(currentRotation.direction * currentRotation.angle, currentRotation.side);
+                    Object *cube = info.cube;
+                    cube->Translate = vec3(newRotation * vec4(info.initialVector, 0.0f));
+                    cube->Rotate = newRotation * info.initialRot;
                 }
 
-                currentRotation.rotating = false;
-            }
-        } else {
-            if (!solving) {
-                vec3 options[] = {
-                    vec3(1, 0, 0),
-                    vec3(-1, 0, 0),
-                    vec3(0, 1, 0),
-                    vec3(0, -1, 0),
-                    vec3(0, 0, 1),
-                    vec3(0, 0, -1),
-                };
+                if (currentRotation.angle == (float) M_PI / 2) {
+                    for (unsigned int i = 0; i < currentRotation.cubes.size(); i++) {
+                        Object *cube = currentRotation.cubes[i].cube;
+                        cube->Translate = vec3(round(cube->Translate[0]), round(cube->Translate[1]),
+                                               round(cube->Translate[2]));
+                    }
 
-                int direction = -1;
-                if ((rand() % 2) > 0.5f) {
-                    direction = 1;
-                }
-
-                vec3 side = options[rand() % 6];
-
-                turn(side, direction);
-                scrambleCount += 1;
-
-                if (scrambleCount > 20) {
-                    currentRotation.speed = 30.0f;
-                    scrambleCount = 0;
-                    solving = true;
+                    currentRotation.rotating = false;
                 }
             } else {
-                if (stack.size() > 0) {
-                    TurnRaw(stack[0].face, stack[0].direction);
-                    stack.erase(stack.begin());
+                if (!solving) {
+                    vec3 options[] = {
+                        vec3(1, 0, 0),
+                        vec3(-1, 0, 0),
+                        vec3(0, 1, 0),
+                        vec3(0, -1, 0),
+                        vec3(0, 0, 1),
+                        vec3(0, 0, -1),
+                    };
+
+                    int direction = -1;
+                    if ((rand() % 2) > 0.5f) {
+                        direction = 1;
+                    }
+
+                    vec3 side = options[rand() % 6];
+
+                    turn(side, direction);
+                    scrambleCount += 1;
+
+                    if (scrambleCount > 20) {
+                        currentRotation.speed = 12.0f;
+                        scrambleCount = 0;
+                        solving = true;
+
+                        delayTick = SDL_GetTicks();
+                        delayDuration = 3.0f;
+                    }
                 } else {
-                    solve();
+                    if (stack.size() > 0) {
+                        TurnRaw(stack[0].face, stack[0].direction);
+                        stack.erase(stack.begin());
+                    } else {
+                        bool solved = solve();
+                        if (solved) {
+                            solving = false;
+                            currentRotation.speed = 20.0f;
+                            stack.clear();
+
+                            delayTick = SDL_GetTicks();
+                            delayDuration = 3.0f;
+                        }
+                    }
                 }
             }
         }
+
         for (unsigned int i = 0; i < cubes.size(); i++) {
             cubes[i].Draw(programID, Projection, View, vertices.size());
         };
