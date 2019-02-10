@@ -179,59 +179,17 @@ struct moves {
 //positive y: 6 white
 //negative y: 5 yellow
 
-vec3 sideOrder[6] = {
-    vec3(1, 0, 0),
-    vec3(-1, 0, 0),
-    vec3(0, 0, 1),
-    vec3(0, 0, -1),
-    vec3(0, 1, 0),
-    vec3(0, -1, 0),
-};
+vec3 sideOrder[6] = {vec3(1, 0, 0), vec3(-1, 0, 0), vec3(0, 0, 1), vec3(0, 0, -1), vec3(0, 1, 0), vec3(0, -1, 0)};
 
-string topbottom[9] {
-    "b",
-    "",
-    "r",
-    "",
-    "g",
-    "",
-    "o",
-    "",
-    "",
-};
+string topbottom[9] {"b", "", "r", "", "g", "", "o", "", ""};
 
-string dictionary[7] {
-    "",
-    "r",
-    "b",
-    "g",
-    "o",
-    "y",
-    "w",
-};
+string dictionary[7] {"", "r", "b", "g", "o", "y", "w"};
 
-string shortcuts[6] {
-    "r",
-    "o",
-    "g",
-    "b",
-    "w",
-    "y",
-};
+string shortcuts[6] {"r", "o", "g", "b", "w", "y"};
 
-int biastopbottom[4] {
-    0,
-    6,
-    4,
-    2,
-};
+int biastopbottom[4] {0, 6, 4, 2};
 
-string bias[4] {
-    "b",
-    "o",
-    "g",
-    "r",
-};
+string bias[4] {"b", "o", "g", "r"};
 
 void turn (vec3 side, int direction) {
     currentRotation.cubes.clear();
@@ -911,7 +869,7 @@ float delayDuration = 0;
 
 int main() {
     bool quit = false;
-    SDL_Window* window;
+    SDL_Window* window; //SDL2 and OpenGL setup uses code provided by online tutorials.
     SDL_GLContext glContext;
     SDL_Event sdlEvent;
 
